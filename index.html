@@ -603,6 +603,12 @@
     }
 
     /* 頭銜管理分頁專用樣式 */
+    .titles-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
     .titles-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -694,8 +700,11 @@
   <div id="titles-tab" class="tab-content">
     <div class="panel" style="flex: 1; display: flex; flex-direction: column;">
       <h2>👑 全班學生頭銜與外框樣式設定</h2>
-      <div style="font-size: 13px; color: #666; margin-bottom: 8px; text-align: center;">
-        輸入每個座號的專屬頭銜，並可自由挑選不同的酷炫外框風格！
+      <div class="titles-top-bar">
+        <div style="font-size: 13px; color: #666;">
+          輸入每個座號的專屬頭銜，並可自由挑選不同的酷炫外框風格！修改後請點擊右側按鈕儲存。
+        </div>
+        <button onclick="saveTitlesData()" style="background-color: #28a745; font-size: 14px; padding: 6px 16px; font-weight: bold;">💾 儲存所有頭銜設定</button>
       </div>
       <div class="titles-grid" id="titlesGridContainer"></div>
     </div>
@@ -737,6 +746,9 @@
     const ADMIN_PASSWORD = "258852";
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzmEtDDzHg9s8ippCkokKRlVrRZ1pNKWS2EdfgExMNmVtZQAPx9fcIB0YUZrP1PCzI-/exec";
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzqAgh-vtmH68CS2SkVC1-xbrACipw61Z4jMPKJHNXlpLRRQGmufk6N67D2oP9TsV9t/exec";
+    
+    // 👇 請在此處填入您的「新頭銜系統」獨立 GAS 網址
+    const TITLES_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzFTG-CCbJjpKKHJWFZxU8Own_pxXQMBaN9fS7x6OgrhDWuWm1LfJ9oU79p_pcR_Hjedw/exec";
 
     const totalStudents = 27; 
     const cols = 6; 
@@ -805,6 +817,52 @@
         });
     }
 
+    // 獨立讀取頭銜資料
+    function loadTitlesData() {
+      if (!TITLES_WEB_APP_URL || TITLES_WEB_APP_URL.includes("請填入")) return;
+
+      fetch(TITLES_WEB_APP_URL)
+        .then(res => res.json())
+        .then(parsed => {
+          if (parsed) {
+            state.titles = {};
+            for (let k in parsed) {
+              let seatKey = formatSeatNum(k);
+              let val = parsed[k];
+              if (typeof val === 'string') {
+                state.titles[seatKey] = { text: val, style: 'badge-style-gold' };
+              } else if (val && typeof val === 'object') {
+                state.titles[seatKey] = { text: val.text || '', style: val.style || 'badge-style-gold' };
+              }
+            }
+            render();
+          }
+        })
+        .catch(err => {
+          console.error("讀取頭銜資料失敗", err);
+        });
+    }
+
+    // 獨立手動儲存頭銜資料
+    function saveTitlesData() {
+      if (!TITLES_WEB_APP_URL || TITLES_WEB_APP_URL.includes("請填入")) {
+        alert("尚未設定頭銜系統網址！");
+        return;
+      }
+
+      fetch(TITLES_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(state.titles)
+      }).then(() => {
+        alert("✅ 頭銜設定已成功儲存至雲端！");
+      }).catch(err => {
+        console.error("寫入頭銜資料失敗: ", err);
+        alert("❌ 儲存失敗，請檢查網路或後端網址。");
+      });
+    }
+
     function toggleMemoLock() {
       if (!state.memoLocked) {
         state.memoLocked = true;
@@ -855,19 +913,6 @@
 
             state.memo = parsed.memo || "一、";
             state.memoLocked = !!parsed.memoLocked;
-
-            state.titles = {};
-            if (parsed.titles) {
-              for (let k in parsed.titles) {
-                let seatKey = formatSeatNum(k);
-                let val = parsed.titles[k];
-                if (typeof val === 'string') {
-                  state.titles[seatKey] = { text: val, style: 'badge-style-gold' };
-                } else if (val && typeof val === 'object') {
-                  state.titles[seatKey] = { text: val.text || '', style: val.style || 'badge-style-gold' };
-                }
-              }
-            }
             
             let loadedSeats = (parsed.seats || []).map(s => {
               if (s === null) return { student: null, locked: false };
@@ -909,7 +954,6 @@
         submissions: state.submissions,
         memo: state.memo,
         memoLocked: state.memoLocked,
-        titles: state.titles,
         lastUpdate: formatted
       };
 
@@ -990,6 +1034,7 @@
       }
 
       loadData();
+      loadTitlesData(); 
       fetchPointsBalance();
 
       setInterval(loadData, 4000);
@@ -1070,7 +1115,6 @@
 
         input.addEventListener("input", (e) => {
           state.titles[sNum].text = e.target.value.trim();
-          saveData();
         });
 
         const select = document.createElement("select");
@@ -1085,8 +1129,6 @@
 
         select.addEventListener("change", (e) => {
           state.titles[sNum].style = e.target.value;
-          saveData();
-          render();
         });
 
         card.appendChild(header);
