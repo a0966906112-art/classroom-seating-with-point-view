@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>班級座位、聯絡簿與點數綜合看板</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2&display=swap');
+    
+    /* 讓整個畫面滿版，禁止捲軸，自動撐滿視窗 */
+    html, body {
+      font-family: 'Baloo 2', 'Comic Sans MS', 'DFKai-SB', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 4px 10px;
+      height: 100vh;
+      width: 100vw;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: clamp(18px, 2.2vh, 26px);
+      margin: 2px 0;
+    }
+
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+    .tab-btn {
+      padding: 4px 16px;
+      font-size: clamp(12px, 1.5vh, 16px);
+      font-weight: bold;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      background-color: #ddd;
+      color: #555;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .tab-btn.active {
+      background-color: #fff;
+      color: #007bff;
+      border: 1px solid #ccc;
+      border-bottom: none;
+      box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+    }
+
+    .tab-content {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      flex-direction: column;
+    }
+    .tab-content.active {
+      display: flex;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+    }
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+    .panel {
+      background-color: #fff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    h2 {
+      font-size: 15px;
+      margin: 0 0 4px 0;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 2px;
+      text-align: center;
+      color: #333;
+    }
+    #pool {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-content: flex-start;
+      padding: 8px;
+      background: #fafafa;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .podium {
+      text-align: center;
+      background: #444;
+      color: white;
+      padding: 4px;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-bottom: 6px;
+      letter-spacing: 4px;
+      font-size: clamp(12px, 1.6vh, 16px);
+      flex-shrink: 0;
+    }
+    .seating-wrapper {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+    .extra-front-seats {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+    .extra-front-seats .extra-slot {
+      display: flex;
+      justify-content: center;
+    }
+    .extra-front-seats .seat-placeholder {
+      width: 100%;
+    }
+    .seat.extra-seat {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 30px;
+      background-color: #fff9e6;
+      border: 2px dashed #ffc107;
+    }
+    .seating-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 6px;
+      flex: 1;
+      min-height: 0;
+    }
+    .seat[data-col="2"],
+    .seat[data-col="3"] {
+      transform: translateY(15px);
+    }
+    
+    .student-badge {
+      width: 85%;
+      height: 85%;
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      cursor: grab;
+      user-select: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: transform 0.1s ease, background-color 0.2s;
+      position: relative;
+    }
+    .student-badge:active {
+      cursor: grabbing;
+    }
+    .student-badge:hover {
+      background-color: #0056b3;
+    }
+    #pool .student-badge {
+      width: 52px;
+      height: 52px;
+      font-size: 13px;
+      border-radius: 6px;
+    }
+    
+    .student-badge.locked {
+      background: linear-gradient(135deg, #495057, #343a40) !important;
+      color: #ffc107 !important;
+      border: 2px solid #ffc107;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4), 0 2px 6px rgba(255, 193, 7, 0.4);
+      cursor: not-allowed;
+    }
+    .seat.locked-seat {
+      background-color: #e9ecef !important;
+      border: 2px solid #6c757d !important;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .lock-btn {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 18px;
+      height: 18px;
+      background: #333;
+      color: #fff;
+      font-size: 10px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 1px solid #fff;
+      z-index: 10;
+    }
+    .seat:hover .lock-btn,
+    .seat .student-badge:hover .lock-btn {
+      display: flex;
+    }
+    .locked-seat .lock-btn,
+    .student-badge.locked .lock-btn {
+      display: flex;
+      background: #495057;
+      color: #ffc107;
+      border: 1px solid #ffc107;
+    }
+    .seat {
+      background-color: #fff;
+      border: 2px dashed #bbb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: background-color 0.2s, transform 0.2s;
+      aspect-ratio: auto;
+      width: 100%;
+      height: 100%;
+    }
+    .seat.disabled {
+      background-color: #e9ecef;
+      border-color: #dee2e6;
+      border-style: solid;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .seat.drag-over {
+      background-color: #e2f0d9;
+      border-color: #28a745;
+    }
+    .seat-index {
+      position: absolute;
+      top: 2px;
+      left: 4px;
+      font-size: clamp(9px, 1.1vh, 13px);
+      color: #888;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    .actions {
+      text-align: center;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+    button {
+      padding: 4px 12px;
+      margin: 0 4px;
+      border: none;
+      border-radius: 6px;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    button:hover {
+      background-color: #222;
+    }
+    .timestamp-global {
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    /* 學生檢視頁面佈局 */
+    #present-tab .present-layout {
+      display: grid;
+      grid-template-columns: 2.1fr 0.9fr;
+      gap: 12px;
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+    }
+    @media (max-width: 1000px) {
+      #present-tab .present-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    #present-tab .panel {
+      padding: 10px 14px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* 學生檢視分頁的名牌特別放大 */
+    #present-tab .student-badge {
+      width: 92% !important;
+      height: 92% !important;
+      font-size: clamp(22px, 3.4vh, 42px) !important;
+      cursor: pointer !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 2px;
+    }
+
+    /* ================= 頭銜與酷炫外框樣式庫 ================= */
+    .badge-title {
+      font-size: clamp(13px, 2.0vh, 22px);
+      padding: 1px 8px;
+      font-weight: bold;
+      line-height: 1.2;
+      white-space: nowrap;
+      max-width: 96%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+      letter-spacing: 1px;
+    }
+
+    /* 樣式 1：尊爵紅金 */
+    .badge-style-gold {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      color: #ffffff;
+      border-radius: 10px;
+      border: 2px solid #ffe600;
+      box-shadow: 0 0 6px rgba(255, 230, 0, 0.8), inset 0 1px 2px rgba(255,255,255,0.4);
+    }
+
+    /* 樣式 2：酷炫方形黃框 (電競風) */
+    .badge-style-cyber {
+      background: #1e1e1e;
+      color: #ffe600;
+      border-radius: 4px;
+      border: 2.5px solid #ffe600;
+      box-shadow: 0 0 8px rgba(255, 230, 0, 0.7), inset 0 0 4px rgba(255, 230, 0, 0.5);
+    }
+
+    /* 樣式 3：科技霓虹藍方框 */
+    .badge-style-neon {
+      background: #001f3f;
+      color: #00f0ff;
+      border-radius: 3px;
+      border: 2.5px solid #00f0ff;
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
+    }
+
+    /* 樣式 4：✨ 傳說黑金質感（附帶白色星光點綴） */
+    .badge-style-legend {
+      background: #111111;
+      color: #ffd700;
+      border-radius: 6px;
+      border: 2.5px solid #ffd700;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.9), inset 0 0 6px rgba(255, 215, 0, 0.4);
+      position: relative;
+      overflow: visible !important;
+    }
+    .badge-style-legend::before {
+      content: "✨";
+      position: absolute;
+      top: -10px;
+      left: -6px;
+      font-size: 13px;
+      filter: drop-shadow(0 0 3px #ffffff);
+    }
+    .badge-style-legend::after {
+      content: "⭐";
+      position: absolute;
+      bottom: -9px;
+      right: -6px;
+      font-size: 12px;
+      filter: drop-shadow(0 0 3px #ffffff);
+    }
+
+    /* 樣式 5：清新森林綠 */
+    .badge-style-forest {
+      background: #1e4620;
+      color: #76ff03;
+      border-radius: 6px;
+      border: 2.5px solid #76ff03;
+      box-shadow: 0 0 8px rgba(118, 255, 3, 0.6);
+    }
+
+    /* 樣式 6：🌟 真實羽翼天使風 (使用精緻 SVG 向量翅膀) */
+    .badge-style-angel {
+      background: linear-gradient(135deg, #2b5876, #4e4376);
+      color: #ffffff;
+      border-radius: 12px;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.4);
+      position: relative;
+      overflow: visible !important;
+    }
+    .badge-style-angel::before {
+      content: "";
+      position: absolute;
+      left: -24px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 85%;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff"><path d="M12,2C6.5,2,2,6.5,2,12c0,3,1.3,5.7,3.4,7.6L4,21l3.5-1.1C9.1,20.6,10.5,21,12,21c5.5,0,10-4.5,10-10S17.5,2,12,2z"/></svg>') no-repeat center / contain;
+      filter: drop-shadow(0 0 5px rgba(255,255,255,0.9));
+    }
+    .badge-style-angel::after {
+      content: "";
+      position: absolute;
+      right: -24px;
+      top: 50%;
+      transform: translateY(-50%) scaleX(-1);
+      width: 22px;
+      height: 85%;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff"><path d="M12,2C6.5,2,2,6.5,2,12c0,3,1.3,5.7,3.4,7.6L4,21l3.5-1.1C9.1,20.6,10.5,21,12,21c5.5,0,10-4.5,10-10S17.5,2,12,2z"/></svg>') no-repeat center / contain;
+      filter: drop-shadow(0 0 5px rgba(255,255,255,0.9));
+    }
+
+    /* 樣式 7：🌿 翡翠精靈藤蔓風 (左右兩邊有葉子圖案) */
+    .badge-style-vines {
+      background: linear-gradient(135deg, #134e5e, #71b280);
+      color: #fceabb;
+      border-radius: 10px;
+      border: 2.5px solid #a8ff78;
+      box-shadow: 0 0 10px rgba(168, 255, 120, 0.6);
+      position: relative;
+      overflow: visible !important;
+    }
+    .badge-style-vines::before {
+      content: "🌱";
+      position: absolute;
+      left: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      filter: drop-shadow(0 0 3px rgba(168, 255, 120, 0.8));
+    }
+    .badge-style-vines::after {
+      content: "🌿";
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      filter: drop-shadow(0 0 3px rgba(168, 255, 120, 0.8));
+    }
+
+    /* 樣式 8：🔥 熔岩霸主風 (熱血風) */
+    .badge-style-lava {
+      background: linear-gradient(135deg, #cb2d3e, #ef473a);
+      color: #fff;
+      border-radius: 8px;
+      border: 2.5px solid #ffeb3b;
+      box-shadow: 0 0 10px rgba(255, 87, 34, 0.9), inset 0 0 6px rgba(255, 235, 59, 0.6);
+    }
+    /* ========================================================= */
+
+    .badge-points {
+      font-size: clamp(13px, 2.0vh, 24px);
+      background: rgba(0,0,0,0.25);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+      line-height: 1.1;
+    }
+
+    #present-tab .student-badge.status-submitted {
+      background-color: #28a745 !important;
+      box-shadow: 0 0 12px rgba(40, 167, 69, 0.7);
+    }
+    #present-tab .student-badge.status-submitted .status-mark::after {
+      content: " ✓";
+      font-size: 0.9em;
+    }
+
+    #present-tab .student-badge.status-incomplete {
+      background-color: #fff3cd !important;
+      color: #856404 !important;
+      box-shadow: 0 0 12px rgba(255, 235, 150, 0.7);
+    }
+    #present-tab .student-badge.status-incomplete .status-mark::after {
+      content: " ✏️";
+      font-size: 0.8em;
+    }
+
+    #present-tab .student-badge.status-leave {
+      background-color: #6c757d !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(108, 117, 125, 0.7);
+    }
+    #present-tab .student-badge.status-leave .status-mark::after {
+      content: " 假";
+      font-size: 0.8em;
+    }
+
+    .present-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      width: 100%;
+      flex-shrink: 0;
+    }
+    .present-tip {
+      font-size: clamp(11px, 1.4vh, 14px);
+      color: #555;
+      background: #e2f0d9;
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid #28a745;
+    }
+
+    .memo-panel {
+      display: flex;
+      flex-direction: column;
+      background: #fffdf5;
+      border: 2px solid #ffeeba;
+      min-height: 0;
+    }
+    .memo-header {
+      font-size: clamp(13px, 1.6vh, 16px);
+      font-weight: bold;
+      color: #856404;
+      text-align: center;
+      padding-bottom: 4px;
+      border-bottom: 2px dashed #ffeeba;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .memo-header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .memo-date-badge {
+      font-size: clamp(11px, 1.4vh, 14px);
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #ffeeba;
+      font-weight: bold;
+    }
+    .memo-lock-btn {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      color: #856404;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: clamp(10px, 1.3vh, 13px);
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .memo-editor {
+      flex: 1;
+      width: 100%;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      padding: 10px;
+      font-family: inherit;
+      font-size: clamp(36px, 6.4vh, 72px);
+      line-height: 2.4;
+      box-sizing: border-box;
+      background-color: #ffffff;
+      color: #333;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      overflow-x: auto;
+      overflow-y: hidden;
+      outline: none;
+      white-space: pre-wrap;
+    }
+    .memo-editor:focus {
+      border-color: #ffc107;
+      box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+    }
+    .memo-editor.locked-memo {
+      background-color: #f8f9fa;
+      color: #6c757d;
+      border-color: #dee2e6;
+      cursor: not-allowed;
+    }
+
+    /* 頭銜管理分頁專用樣式 */
+    .titles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 10px;
+      overflow-y: auto;
+      padding: 10px;
+      flex: 1;
+      background: #fafafa;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+    }
+    .title-card {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .title-card-header {
+      font-weight: bold;
+      font-size: 14px;
+      color: #007bff;
+    }
+    .title-input, .title-select {
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+    .title-input:focus, .title-select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>班級座位、聯絡簿與點數綜合看板</h1>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('present')">📺 學生檢視頁面（作業與點數）</button>
+    <button class="tab-btn" onclick="switchTab('titles')">👑 學生頭銜管理</button>
+    <button class="tab-btn" onclick="switchTab('edit')">🛠️ 調整座位頁面</button>
+  </div>
+
+  <!-- 學生檢視分頁 -->
+  <div id="present-tab" class="tab-content active">
+    <div class="present-toolbar">
+      <div class="present-tip">💡 點擊座號切換狀態：<span style="color:#28a745; font-weight:bold;">綠色(已完成 ✓)</span> ➔ <span style="color:#b58500; font-weight:bold;">淡黃色(加油中 ✏️)</span> ➔ <span style="color:#6c757d; font-weight:bold;">灰色(請假 假)</span> ➔ 正常</div>
+      <button onclick="resetSubmissionsWithPassword()" style="background-color: #dc3545; font-size: 13px; padding: 4px 10px;">清除所有回報狀態</button>
+    </div>
+
+    <div class="present-layout">
+      <!-- 座位區 -->
+      <div class="panel" style="display:flex; flex-direction:column;">
+        <div class="podium">講台方向</div>
+        <div class="seating-wrapper">
+          <div class="extra-front-seats">
+            <div class="seat-placeholder"></div>
+            <div class="seat-placeholder"></div>
+            <div class="extra-slot" id="p-extra3"></div>
+            <div class="extra-slot" id="p-extra4"></div>
+            <div class="seat-placeholder"></div>
+            <div class="seat-placeholder"></div>
+          </div>
+          <div class="seating-grid" id="p-grid"></div>
+        </div>
+      </div>
+
+      <!-- 聯絡簿區 -->
+      <div class="panel memo-panel">
+        <div class="memo-header">
+          <span>📝 今日聯絡簿</span>
+          <div class="memo-header-right">
+            <span id="memoDateBadge" class="memo-date-badge"></span>
+            <button id="memoLockBtn" class="memo-lock-btn" onclick="toggleMemoLock()" title="點擊切換鎖定狀態">🔓 解鎖中</button>
+          </div>
+        </div>
+        <div id="memoContent" class="memo-editor" contenteditable="true">一、</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 頭銜管理分頁 -->
+  <div id="titles-tab" class="tab-content">
+    <div class="panel" style="flex: 1; display: flex; flex-direction: column;">
+      <h2>👑 全班學生頭銜與外框樣式設定</h2>
+      <div style="font-size: 13px; color: #666; margin-bottom: 8px; text-align: center;">
+        輸入每個座號的專屬頭銜，並可自由挑選不同的酷炫外框風格！
+      </div>
+      <div class="titles-grid" id="titlesGridContainer"></div>
+    </div>
+  </div>
+
+  <!-- 調整座位分頁 -->
+  <div id="edit-tab" class="tab-content">
+    <div class="container">
+      <div class="panel">
+        <h2>未入座學生</h2>
+        <div id="pool" ondragover="allowDrop(event)" ondragleave="removeDropStyle(event)" ondrop="dropToPool(event)"></div>
+      </div>
+
+      <div class="panel">
+        <div class="podium">講台方向</div>
+        <div class="seating-wrapper">
+          <div class="extra-front-seats">
+            <div class="seat-placeholder"></div>
+            <div class="seat-placeholder"></div>
+            <div class="extra-slot" id="extraSeat-3"></div>
+            <div class="extra-slot" id="extraSeat-4"></div>
+            <div class="seat-placeholder"></div>
+            <div class="seat-placeholder"></div>
+          </div>
+          <div class="seating-grid" id="seatingGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="randomAssign()">🎲 隨機排座位</button>
+      <button onclick="resetSeats()">🔄 全部清空重設</button>
+    </div>
+  </div>
+
+  <div class="timestamp-global" id="lastUpdate">最後更新時間：尚未更新</div>
+
+  <script>
+    const ADMIN_PASSWORD = "258852";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzmEtDDzHg9s8ippCkokKRlVrRZ1pNKWS2EdfgExMNmVtZQAPx9fcIB0YUZrP1PCzI-/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzqAgh-vtmH68CS2SkVC1-xbrACipw61Z4jMPKJHNXlpLRRQGmufk6N67D2oP9TsV9t/exec";
+
+    const totalStudents = 27; 
+    const cols = 6; 
+    const rows = 5; 
+    const gridSeats = cols * rows; 
+    const extraSeatsCount = 2;     
+    const totalSeats = gridSeats + extraSeatsCount; 
+    const disabledSeats = ["4-5", "5-5", "6-5"];
+
+    let state = {
+      pool: Array.from({ length: totalStudents }, (_, i) => String(i + 1).padStart(2, '0')),
+      seats: Array(totalSeats).fill(null).map(() => ({ student: null, locked: false })),
+      submissions: {}, 
+      memo: "一、",
+      memoLocked: false,
+      pointsData: {},
+      titles: {} 
+    };
+
+    let isSaving = false;
+    let pendingSave = false;
+
+    function formatSeatNum(num) {
+      if (num === null || num === undefined || num === "") return null;
+      return String(num).padStart(2, '0');
+    }
+
+    function verifyPassword() {
+      const input = prompt("請輸入管理員密碼：");
+      if (input === null) return false; 
+      if (input !== ADMIN_PASSWORD) {
+        alert("密碼錯誤！");
+        return false;
+      }
+      return true;
+    }
+
+    function initTodayDate() {
+      const dateBadge = document.getElementById("memoDateBadge");
+      if (dateBadge) {
+        const now = new Date();
+        const year = now.getFullYear() - 1911; 
+        const month = now.getMonth() + 1;
+        const day = now.getDate();
+        const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+        dateBadge.innerText = `${year}年${month}月${day}日 週${weekdays[now.getDay()]}`;
+      }
+    }
+
+    function fetchPointsBalance() {
+      if (!GAS_URL || GAS_URL.includes("請填入")) return;
+      fetch(`${GAS_URL}?action=getAllStudentsBalance`)
+        .then(res => res.json())
+        .then(data => {
+          const normalized = {};
+          if (data) {
+            for (let key in data) {
+              normalized[formatSeatNum(key)] = data[key];
+            }
+          }
+          state.pointsData = normalized;
+          render();
+        })
+        .catch(err => {
+          console.error("抓取點數資料失敗", err);
+        });
+    }
+
+    function toggleMemoLock() {
+      if (!state.memoLocked) {
+        state.memoLocked = true;
+      } else {
+        if (!verifyPassword()) return;
+        state.memoLocked = false;
+      }
+      updateMemoLockUI();
+      saveData();
+    }
+
+    function updateMemoLockUI() {
+      const memoBox = document.getElementById("memoContent");
+      const lockBtn = document.getElementById("memoLockBtn");
+      if (!memoBox || !lockBtn) return;
+
+      if (state.memoLocked) {
+        memoBox.contentEditable = "false";
+        memoBox.classList.add("locked-memo");
+        lockBtn.innerText = "🔒 已鎖定";
+      } else {
+        memoBox.contentEditable = "true";
+        memoBox.classList.remove("locked-memo");
+        lockBtn.innerText = "🔓 解鎖中";
+      }
+    }
+
+    function loadData() {
+      if (!WEB_APP_URL || WEB_APP_URL.includes("請貼上")) {
+        render();
+        return;
+      }
+
+      if (isSaving) return;
+
+      fetch(WEB_APP_URL)
+        .then(res => res.json())
+        .then(parsed => {
+          if (parsed && parsed.pool) {
+            state.pool = (parsed.pool || []).map(n => formatSeatNum(n)).filter(n => parseInt(n, 10) <= totalStudents);
+            
+            state.submissions = {};
+            if (parsed.submissions) {
+              for (let k in parsed.submissions) {
+                state.submissions[formatSeatNum(k)] = parsed.submissions[k];
+              }
+            }
+
+            state.memo = parsed.memo || "一、";
+            state.memoLocked = !!parsed.memoLocked;
+
+            state.titles = {};
+            if (parsed.titles) {
+              for (let k in parsed.titles) {
+                let seatKey = formatSeatNum(k);
+                let val = parsed.titles[k];
+                if (typeof val === 'string') {
+                  state.titles[seatKey] = { text: val, style: 'badge-style-gold' };
+                } else if (val && typeof val === 'object') {
+                  state.titles[seatKey] = { text: val.text || '', style: val.style || 'badge-style-gold' };
+                }
+              }
+            }
+            
+            let loadedSeats = (parsed.seats || []).map(s => {
+              if (s === null) return { student: null, locked: false };
+              if (typeof s === 'number' || typeof s === 'string') {
+                let stud = formatSeatNum(s);
+                return { student: parseInt(stud, 10) <= totalStudents ? stud : null, locked: false };
+              }
+              if (typeof s === 'object' && s.student !== undefined) {
+                let stud = formatSeatNum(s.student);
+                if (s.student === "empty" || s.student === null || parseInt(stud, 10) > totalStudents) stud = null;
+                return { student: stud, locked: !!s.locked };
+              }
+              return { student: null, locked: false };
+            });
+            
+            while (loadedSeats.length < totalSeats) loadedSeats.push({ student: null, locked: false });
+            state.seats = loadedSeats.slice(0, totalSeats);
+
+            if (parsed.lastUpdate) {
+              document.getElementById("lastUpdate").innerText = "最後更新時間：" + parsed.lastUpdate;
+            }
+          }
+          updateMemoLockUI();
+          render();
+        })
+        .catch(err => {
+          console.error("讀取雲端座位資料失敗", err);
+        });
+    }
+
+    function saveData() {
+      const now = new Date();
+      const formatted = now.toLocaleString();
+      document.getElementById("lastUpdate").innerText = "最後更新時間：" + formatted;
+
+      const payload = {
+        pool: state.pool,
+        seats: state.seats,
+        submissions: state.submissions,
+        memo: state.memo,
+        memoLocked: state.memoLocked,
+        titles: state.titles,
+        lastUpdate: formatted
+      };
+
+      if (!WEB_APP_URL || WEB_APP_URL.includes("請貼上")) return;
+
+      if (isSaving) {
+        pendingSave = true;
+        return;
+      }
+
+      isSaving = true;
+
+      fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors", 
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload)
+      }).then(() => {
+        isSaving = false;
+        if (pendingSave) {
+          pendingSave = false;
+          saveData();
+        }
+      }).catch(err => {
+        console.error("寫入雲端座位失敗: ", err);
+        isSaving = false;
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initTodayDate();
+      const memoBox = document.getElementById("memoContent");
+      if (memoBox) {
+        memoBox.addEventListener("keydown", (e) => {
+          if (state.memoLocked) return;
+          if (e.key === "Enter") {
+            e.preventDefault();
+            const chineseNums = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四", "十五"];
+            const text = memoBox.innerText;
+            const matches = text.match(/([一二三四五六七八九十]+)、/g);
+            let maxVal = 1;
+            if (matches) {
+              const values = matches.map(m => chineseNums.indexOf(m.replace("、", ""))).filter(v => v > 0);
+              if (values.length > 0) maxVal = Math.max(...values);
+            }
+            const nextPrefix = (chineseNums[maxVal + 1] || (maxVal + 1)) + "、";
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+              const range = selection.getRangeAt(0);
+              range.deleteContents();
+              const textNode = document.createTextNode("\n" + nextPrefix);
+              range.insertNode(textNode);
+              range.setStartAfter(textNode);
+              range.setEndAfter(textNode);
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+            state.memo = memoBox.innerText;
+            saveData();
+          }
+        });
+
+        memoBox.addEventListener("input", () => {
+          if (state.memoLocked) return;
+          let text = memoBox.innerText;
+          if (!text.startsWith("一、")) {
+            memoBox.innerText = "一、" + text.replace(/^[一二三四五六七八九十、]+/, "");
+            let range = document.createRange();
+            let sel = window.getSelection();
+            range.selectNodeContents(memoBox);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }
+          state.memo = memoBox.innerText;
+          saveData();
+        });
+      }
+
+      loadData();
+      fetchPointsBalance();
+
+      setInterval(loadData, 4000);
+      setInterval(fetchPointsBalance, 15000);
+    });
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+      if (tabName === 'present') {
+        document.querySelector('.tab-bar button:nth-child(1)').classList.add('active');
+        document.getElementById('present-tab').classList.add('active');
+        initTodayDate();
+        renderPresentView(); 
+      } else if (tabName === 'titles') {
+        if (!verifyPassword()) {
+          switchTab('present');
+          return;
+        }
+        document.querySelector('.tab-bar button:nth-child(2)').classList.add('active');
+        document.getElementById('titles-tab').classList.add('active');
+        renderTitlesManager();
+      } else if (tabName === 'edit') {
+        if (!verifyPassword()) {
+          switchTab('present'); 
+          return;
+        }
+        document.querySelector('.tab-bar button:nth-child(3)').classList.add('active');
+        document.getElementById('edit-tab').classList.add('active');
+      }
+    }
+
+    function render() {
+      renderPool();
+      renderSeats();
+      renderPresentView();
+      renderTitlesManager();
+    }
+
+    function renderTitlesManager() {
+      const container = document.getElementById("titlesGridContainer");
+      if (!container) return;
+      if (document.activeElement && (document.activeElement.classList.contains("title-input") || document.activeElement.classList.contains("title-select"))) {
+        return; 
+      }
+      container.innerHTML = "";
+
+      const styleOptions = [
+        { val: "badge-style-gold", name: "🏆 尊爵紅金" },
+        { val: "badge-style-cyber", name: "💻 酷炫方框（黃）" },
+        { val: "badge-style-neon", name: "⚡ 霓虹科技（藍）" },
+        { val: "badge-style-legend", name: "✨ 傳說黑金（星光點綴）" },
+        { val: "badge-style-forest", name: "🌿 森林綠" },
+        { val: "badge-style-angel", name: "🌟 天使聖翼風 (羽翼)" },
+        { val: "badge-style-vines", name: "🌱 翡翠精靈藤蔓（葉子）" },
+        { val: "badge-style-lava", name: "🔥 熔岩霸主風" }
+      ];
+
+      for (let i = 1; i <= totalStudents; i++) {
+        const sNum = formatSeatNum(i);
+        if (!state.titles[sNum]) {
+          state.titles[sNum] = { text: "", style: "badge-style-gold" };
+        }
+
+        const card = document.createElement("div");
+        card.className = "title-card";
+
+        const header = document.createElement("div");
+        header.className = "title-card-header";
+        header.innerText = `${sNum} 號學生`;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "title-input";
+        input.placeholder = "輸入頭銜（例如：小達人）";
+        input.value = state.titles[sNum].text || "";
+
+        input.addEventListener("input", (e) => {
+          state.titles[sNum].text = e.target.value.trim();
+          saveData();
+        });
+
+        const select = document.createElement("select");
+        select.className = "title-select";
+        styleOptions.forEach(opt => {
+          const optEl = document.createElement("option");
+          optEl.value = opt.val;
+          optEl.innerText = opt.name;
+          if (state.titles[sNum].style === opt.val) optEl.selected = true;
+          select.appendChild(optEl);
+        });
+
+        select.addEventListener("change", (e) => {
+          state.titles[sNum].style = e.target.value;
+          saveData();
+          render();
+        });
+
+        card.appendChild(header);
+        card.appendChild(input);
+        card.appendChild(select);
+        container.appendChild(card);
+      }
+    }
+
+    function renderPool() {
+      const poolEl = document.getElementById("pool");
+      poolEl.innerHTML = "";
+      state.pool.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+      
+      state.pool.forEach(num => {
+        const badge = document.createElement("div");
+        badge.className = "student-badge";
+        const formattedNum = formatSeatNum(num);
+        const pts = state.pointsData[formattedNum] !== undefined ? state.pointsData[formattedNum] : 0;
+        const titleObj = state.titles[formattedNum];
+
+        let htmlContent = "";
+        if (titleObj && titleObj.text) {
+          htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-gold'}" title="${titleObj.text}">${titleObj.text}</div>`;
+        }
+        htmlContent += `<span>${formattedNum}</span><span class="badge-points">⭐${pts}</span>`;
+        badge.innerHTML = htmlContent;
+
+        badge.draggable = true;
+        badge.addEventListener("dragstart", (e) => {
+          e.dataTransfer.setData("text/plain", JSON.stringify({ num: formattedNum, sourceType: "pool", sourceIndex: null }));
+        });
+        poolEl.appendChild(badge);
+      });
+    }
+
+    function renderSeats() {
+      const extraSlot3 = document.getElementById("extraSeat-3");
+      const extraSlot4 = document.getElementById("extraSeat-4");
+      extraSlot3.innerHTML = "";
+      extraSlot4.innerHTML = "";
+      extraSlot3.appendChild(createSeatElement(30, "4-前", true));
+      extraSlot4.appendChild(createSeatElement(31, "3-前", true));
+
+      const gridEl = document.getElementById("seatingGrid");
+      gridEl.innerHTML = "";
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const colIdx = cols - 1 - c; 
+          const rowIdx = r;
+          const seatIndex = colIdx * rows + rowIdx;
+          const coord = `${colIdx + 1}-${rowIdx + 1}`;
+          const isDisabled = disabledSeats.includes(coord);
+          const seatData = state.seats[seatIndex] || { student: null, locked: false };
+          
+          const seatDiv = document.createElement("div");
+          seatDiv.className = "seat";
+          if (isDisabled) seatDiv.classList.add("disabled");
+          seatDiv.dataset.col = colIdx; 
+          if (seatData.locked && !isDisabled) seatDiv.classList.add("locked-seat");
+
+          const indexSpan = document.createElement("span");
+          indexSpan.className = "seat-index";
+          indexSpan.innerText = coord;
+          seatDiv.appendChild(indexSpan);
+
+          if (!isDisabled) {
+            const lockBtn = document.createElement("div");
+            lockBtn.className = "lock-btn";
+            lockBtn.innerText = seatData.locked ? "🔒" : "🔓";
+            lockBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              toggleSeatLock(seatIndex);
+            });
+            seatDiv.appendChild(lockBtn);
+
+            seatDiv.addEventListener("dragover", allowDrop);
+            seatDiv.addEventListener("dragleave", removeDropStyle);
+            seatDiv.addEventListener("drop", (e) => dropToSeat(e, seatIndex));
+
+            if (seatData.student !== null) {
+              const badge = document.createElement("div");
+              badge.className = "student-badge";
+              const sNum = formatSeatNum(seatData.student);
+              const pts = state.pointsData[sNum] !== undefined ? state.pointsData[sNum] : 0;
+              const titleObj = state.titles[sNum];
+
+              let htmlContent = "";
+              if (titleObj && titleObj.text) {
+                htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-gold'}" title="${titleObj.text}">${titleObj.text}</div>`;
+              }
+              htmlContent += `<span>${sNum}</span><span class="badge-points">⭐${pts}</span>`;
+              badge.innerHTML = htmlContent;
+
+              badge.draggable = !seatData.locked;
+              if (seatData.locked) badge.classList.add("locked");
+
+              badge.addEventListener("dragstart", (e) => {
+                if (seatData.locked) return;
+                e.dataTransfer.setData("text/plain", JSON.stringify({ num: sNum, sourceType: "seat", sourceIndex: seatIndex }));
+              });
+              seatDiv.appendChild(badge);
+            }
+          }
+          gridEl.appendChild(seatDiv);
+        }
+      }
+    }
+
+    function createSeatElement(seatIndex, coordLabel, isExtra = false) {
+      const seatData = state.seats[seatIndex] || { student: null, locked: false };
+      const seatDiv = document.createElement("div");
+      seatDiv.className = "seat";
+      if (isExtra) seatDiv.classList.add("extra-seat"); 
+      if (seatData.locked) seatDiv.classList.add("locked-seat");
+
+      const indexSpan = document.createElement("span");
+      indexSpan.className = "seat-index";
+      indexSpan.innerText = coordLabel;
+      seatDiv.appendChild(indexSpan);
+
+      const lockBtn = document.createElement("div");
+      lockBtn.className = "lock-btn";
+      lockBtn.innerText = seatData.locked ? "🔒" : "🔓";
+      lockBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleSeatLock(seatIndex);
+      });
+      seatDiv.appendChild(lockBtn);
+
+      seatDiv.addEventListener("dragover", allowDrop);
+      seatDiv.addEventListener("dragleave", removeDropStyle);
+      seatDiv.addEventListener("drop", (e) => dropToSeat(e, seatIndex));
+
+      if (seatData.student !== null) {
+        const badge = document.createElement("div");
+        badge.className = "student-badge";
+        const sNum = formatSeatNum(seatData.student);
+        const pts = state.pointsData[sNum] !== undefined ? state.pointsData[sNum] : 0;
+        const titleObj = state.titles[sNum];
+
+        let htmlContent = "";
+        if (titleObj && titleObj.text) {
+          htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-gold'}" title="${titleObj.text}">${titleObj.text}</div>`;
+        }
+        htmlContent += `<span>${sNum}</span><span class="badge-points">⭐${pts}</span>`;
+        badge.innerHTML = htmlContent;
+
+        badge.draggable = !seatData.locked;
+        if (seatData.locked) badge.classList.add("locked");
+
+        badge.addEventListener("dragstart", (e) => {
+          if (seatData.locked) return;
+          e.dataTransfer.setData("text/plain", JSON.stringify({ num: sNum, sourceType: "seat", sourceIndex: seatIndex }));
+        });
+        seatDiv.appendChild(badge);
+      }
+      return seatDiv;
+    }
+
+    function renderPresentView() {
+      const extra3 = document.getElementById("p-extra3");
+      const extra4 = document.getElementById("p-extra4");
+      const grid = document.getElementById("p-grid");
+      const memoBox = document.getElementById("memoContent");
+      
+      if (memoBox && state.memo !== undefined && document.activeElement !== memoBox) {
+        memoBox.innerText = state.memo;
+      }
+      if (!extra3 || !extra4 || !grid) return;
+
+      extra3.innerHTML = "";
+      extra4.innerHTML = "";
+      grid.innerHTML = "";
+
+      function createPSeatElement(seatIndex, coordLabel, isExtra = false) {
+        const seatData = state.seats[seatIndex] || { student: null, locked: false };
+        const seatDiv = document.createElement("div");
+        seatDiv.className = "seat";
+        if (isExtra) seatDiv.classList.add("extra-seat");
+        if (seatData.locked) seatDiv.classList.add("locked-seat");
+
+        const indexSpan = document.createElement("span");
+        indexSpan.className = "seat-index";
+        indexSpan.innerText = coordLabel;
+        seatDiv.appendChild(indexSpan);
+
+        if (seatData.student !== null) {
+          const badge = document.createElement("div");
+          badge.className = "student-badge";
+          if (seatData.locked) badge.classList.add("locked");
+          
+          const sNum = formatSeatNum(seatData.student);
+          const pts = state.pointsData[sNum] !== undefined ? state.pointsData[sNum] : 0;
+          const titleObj = state.titles[sNum];
+          
+          let htmlContent = "";
+          if (titleObj && titleObj.text) {
+            htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-gold'}" title="${titleObj.text}">${titleObj.text}</div>`;
+          }
+          htmlContent += `<span class="status-mark">${sNum}</span><span class="badge-points">⭐${pts}</span>`;
+          badge.innerHTML = htmlContent;
+
+          const currentStatus = state.submissions[sNum] || 0;
+          if (currentStatus === 1) badge.classList.add("status-submitted");
+          else if (currentStatus === 2) badge.classList.add("status-incomplete");
+          else if (currentStatus === 3) badge.classList.add("status-leave");
+
+          badge.addEventListener("click", () => {
+            let status = (state.submissions[sNum] || 0) + 1;
+            if (status > 3) delete state.submissions[sNum];
+            else state.submissions[sNum] = status;
+            
+            if (status === 1) {
+              badge.className = "student-badge status-submitted";
+            } else if (status === 2) {
+              badge.className = "student-badge status-incomplete";
+            } else if (status === 3) {
+              badge.className = "student-badge status-leave";
+            } else {
+              badge.className = "student-badge";
+            }
+
+            saveData();
+          });
+          seatDiv.appendChild(badge);
+        }
+        return seatDiv;
+      }
+
+      extra3.appendChild(createPSeatElement(30, "4-前", true));
+      extra4.appendChild(createPSeatElement(31, "3-前", true));
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const colIdx = cols - 1 - c; 
+          const rowIdx = r;
+          const seatIndex = colIdx * rows + rowIdx;
+          const coord = `${colIdx + 1}-${rowIdx + 1}`;
+          const isDisabled = disabledSeats.includes(coord);
+          const seatData = state.seats[seatIndex] || { student: null, locked: false };
+
+          const seatDiv = document.createElement("div");
+          seatDiv.className = "seat";
+          if (isDisabled) seatDiv.classList.add("disabled");
+          seatDiv.dataset.col = colIdx;
+          if (seatData.locked && !isDisabled) seatDiv.classList.add("locked-seat");
+
+          const indexSpan = document.createElement("span");
+          indexSpan.className = "seat-index";
+          indexSpan.innerText = coord;
+          seatDiv.appendChild(indexSpan);
+
+          if (!isDisabled && seatData.student !== null) {
+            const badge = document.createElement("div");
+            badge.className = "student-badge";
+            if (seatData.locked) badge.classList.add("locked");
+            
+            const sNum = formatSeatNum(seatData.student);
+            const pts = state.pointsData[sNum] !== undefined ? state.pointsData[sNum] : 0;
+            const titleObj = state.titles[sNum];
+            
+            let htmlContent = "";
+            if (titleObj && titleObj.text) {
+              htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-gold'}" title="${titleObj.text}">${titleObj.text}</div>`;
+            }
+            htmlContent += `<span class="status-mark">${sNum}</span><span class="badge-points">⭐${pts}</span>`;
+            badge.innerHTML = htmlContent;
+
+            const currentStatus = state.submissions[sNum] || 0;
+            if (currentStatus === 1) badge.classList.add("status-submitted");
+            else if (currentStatus === 2) badge.classList.add("status-incomplete");
+            else if (currentStatus === 3) badge.classList.add("status-leave");
+
+            badge.addEventListener("click", () => {
+              let status = (state.submissions[sNum] || 0) + 1;
+              if (status > 3) delete state.submissions[sNum];
+              else state.submissions[sNum] = status;
+
+              if (status === 1) {
+                badge.className = "student-badge status-submitted";
+              } else if (status === 2) {
+                badge.className = "student-badge status-incomplete";
+              } else if (status === 3) {
+                badge.className = "student-badge status-leave";
+              } else {
+                badge.className = "student-badge";
+              }
+
+              saveData();
+            });
+            seatDiv.appendChild(badge);
+          }
+          grid.appendChild(seatDiv);
+        }
+      }
+    }
+
+    function resetSubmissionsWithPassword() {
+      if (!verifyPassword()) return;
+      if (confirm("確定要清除所有學生的回報狀態嗎？")) {
+        state.submissions = {};
+        saveData();
+        renderPresentView();
+      }
+    }
+
+    function toggleSeatLock(seatIndex) {
+      if (!state.seats[seatIndex]) state.seats[seatIndex] = { student: null, locked: false };
+      state.seats[seatIndex].locked = !state.seats[seatIndex].locked;
+      saveData();
+      render();
+    }
+
+    function allowDrop(e) {
+      e.preventDefault();
+      const seat = e.currentTarget.closest(".seat") || e.currentTarget;
+      if (seat.classList && seat.classList.contains("seat") && !seat.classList.contains("disabled")) {
+        seat.classList.add("drag-over");
+      }
+    }
+
+    function removeDropStyle(e) {
+      const seat = e.currentTarget.closest(".seat") || e.currentTarget;
+      if (seat.classList && seat.classList.contains("seat")) seat.classList.remove("drag-over");
+      if (e.target.id === "pool") e.target.style.backgroundColor = "#fafafa";
+    }
+
+    function dropToPool(e) {
+      e.preventDefault();
+      document.getElementById("pool").style.backgroundColor = "#fafafa";
+      try {
+        const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+        if (data.sourceType === "seat") {
+          if (state.seats[data.sourceIndex]?.locked) return; 
+          const num = formatSeatNum(data.num);
+          state.seats[data.sourceIndex].student = null;
+          if (!state.pool.includes(num)) {
+            state.pool.push(num);
+            state.pool.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+          }
+          saveData();
+          render();
+        }
+      } catch(err) { console.error(err); }
+    }
+
+    function dropToSeat(e, targetSeatIndex) {
+      e.preventDefault();
+      const seat = e.currentTarget.closest(".seat");
+      if (seat) seat.classList.remove("drag-over");
+
+      if (targetSeatIndex < gridSeats) {
+        const coord = `${Math.floor(targetSeatIndex / rows) + 1}-${targetSeatIndex % rows + 1}`;
+        if (disabledSeats.includes(coord)) return;
+      }
+
+      if (!state.seats[targetSeatIndex]) state.seats[targetSeatIndex] = { student: null, locked: false };
+      if (state.seats[targetSeatIndex].locked) {
+        alert("此格子已被鎖定，無法放入學生！");
+        return;
+      }
+
+      try {
+        const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+        const movingNum = formatSeatNum(data.num);
+        const targetExistingStudent = state.seats[targetSeatIndex].student ? formatSeatNum(state.seats[targetSeatIndex].student) : null;
+
+        if (data.sourceType === "pool") {
+          state.pool = state.pool.filter(n => n !== movingNum);
+        } else if (data.sourceType === "seat") {
+          state.seats[data.sourceIndex].student = null;
+        }
+
+        if (targetExistingStudent !== null) {
+          if (data.sourceType === "pool") {
+            state.pool.push(targetExistingStudent);
+            state.pool.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+          } else if (data.sourceType === "seat") {
+            state.seats[data.sourceIndex].student = targetExistingStudent;
+          }
+        }
+
+        state.seats[targetSeatIndex].student = movingNum;
+        saveData();
+        render();
+      } catch(err) { console.error(err); }
+    }
+
+    function randomAssign() {
+      let freeStudents = [...state.pool];
+      for (let i = 0; i < totalSeats; i++) {
+        if (i < gridSeats) {
+            const coord = `${Math.floor(i / rows) + 1}-${i % rows + 1}`;
+            if (disabledSeats.includes(coord)) continue;
+        }
+        if (state.seats[i] && !state.seats[i].locked && state.seats[i].student !== null) {
+          freeStudents.push(formatSeatNum(state.seats[i].student));
+          state.seats[i].student = null;
+        }
+      }
+
+      for (let i = freeStudents.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [freeStudents[i], freeStudents[j]] = [freeStudents[j], freeStudents[i]];
+      }
+
+      let studentIndex = 0;
+      for (let i = 0; i < totalSeats; i++) {
+        if (i < gridSeats) {
+          const coord = `${Math.floor(i / rows) + 1}-${i % rows + 1}`;
+          if (disabledSeats.includes(coord)) continue;
+        }
+        if (!state.seats[i]) state.seats[i] = { student: null, locked: false };
+        if (!state.seats[i].locked && studentIndex < freeStudents.length) {
+          state.seats[i].student = freeStudents[studentIndex];
+          studentIndex++;
+        }
+      }
+      state.pool = freeStudents.slice(studentIndex);
+      state.pool.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+      saveData();
+      render();
+    }
+
+    function resetSeats() {
+      if (confirm("確定要清空所有未鎖定的座位與學生嗎？")) {
+        let newPool = Array.from({ length: totalStudents }, (_, i) => formatSeatNum(i + 1));
+        for (let i = 0; i < totalSeats; i++) {
+          if (i < gridSeats) {
+            const coord = `${Math.floor(i / rows) + 1}-${i % rows + 1}`;
+            if (disabledSeats.includes(coord)) continue;
+          }
+          if (state.seats[i]?.locked && state.seats[i]?.student !== null) {
+            const lockedStud = formatSeatNum(state.seats[i].student);
+            newPool = newPool.filter(n => n !== lockedStud);
+          } else {
+            state.seats[i] = { student: null, locked: false };
+          }
+        }
+        state.pool = newPool;
+        state.pool.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        saveData();
+        render();
+      }
+    }
+  </script>
+</body>
+</html>
