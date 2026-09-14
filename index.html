@@ -4,14 +4,28 @@
   <meta charset="UTF-8" />
   <title>班級座位、聯絡簿與點數綜合看板</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Baloo+2&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
     
-    /* 讓整個畫面滿版，禁止捲軸，自動撐滿視窗 */
+    /* 全域設定與色彩變數 */
+    :root {
+      --primary-color: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg-color: #f8fafc;
+      --panel-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    }
+
     html, body {
-      font-family: 'Baloo 2', 'Comic Sans MS', 'DFKai-SB', sans-serif;
-      background-color: #f4f4f4;
+      font-family: 'Baloo 2', 'Noto Sans TC', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
       margin: 0;
-      padding: 2px 8px;
+      padding: 4px 12px;
       height: 100vh;
       width: 100vw;
       box-sizing: border-box;
@@ -20,36 +34,65 @@
       overflow: hidden;
     }
 
-    h1 {
-      text-align: center;
-      font-size: clamp(16px, 1.8vh, 22px);
-      margin: 1px 0;
+    /* 美化捲軸 */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.03);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0,0,0,0.25);
     }
 
+    h1 {
+      text-align: center;
+      font-size: clamp(18px, 2.2vh, 26px);
+      font-weight: 900;
+      margin: 2px 0 6px 0;
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 1px;
+    }
+
+    /* 分頁列設計 */
     .tab-bar {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin-bottom: 2px;
+      gap: 8px;
+      margin-bottom: 6px;
       flex-shrink: 0;
     }
     .tab-btn {
-      padding: 3px 14px;
-      font-size: clamp(11px, 1.3vh, 15px);
-      font-weight: bold;
+      padding: 6px 18px;
+      font-size: clamp(12px, 1.4vh, 16px);
+      font-weight: 700;
       border: none;
-      border-radius: 8px 8px 0 0;
-      background-color: #ddd;
-      color: #555;
+      border-radius: 12px 12px 0 0;
+      background-color: #e2e8f0;
+      color: var(--text-muted);
       cursor: pointer;
-      transition: background-color 0.2s, color 0.2s;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: inset 0 -2px 4px rgba(0,0,0,0.03);
+    }
+    .tab-btn:hover {
+      background-color: #cbd5e1;
+      color: var(--text-main);
     }
     .tab-btn.active {
-      background-color: #fff;
-      color: #007bff;
-      border: 1px solid #ccc;
+      background-color: var(--panel-bg);
+      color: var(--primary-color);
+      border: 1px solid var(--border-color);
       border-bottom: none;
-      box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+      box-shadow: 0 -4px 12px rgba(79, 70, 229, 0.08);
+      transform: translateY(-1px);
     }
 
     .tab-content {
@@ -64,8 +107,8 @@
 
     .container {
       display: grid;
-      grid-template-columns: 240px 1fr;
-      gap: 8px;
+      grid-template-columns: 260px 1fr;
+      gap: 12px;
       flex: 1;
       min-height: 0;
       width: 100%;
@@ -76,48 +119,60 @@
         height: auto;
       }
     }
+
     .panel {
-      background-color: #fff;
-      padding: 6px 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      background-color: var(--panel-bg);
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-md);
       display: flex;
       flex-direction: column;
       min-height: 0;
+      transition: box-shadow 0.3s ease;
     }
+    .panel:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
     h2 {
-      font-size: 14px;
-      margin: 0 0 3px 0;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 2px;
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      border-bottom: 2px solid var(--bg-color);
+      padding-bottom: 6px;
       text-align: center;
-      color: #333;
+      color: var(--text-main);
+      letter-spacing: 0.5px;
     }
+
     #pool {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
       align-content: flex-start;
-      padding: 8px;
-      background: #fafafa;
-      border: 2px dashed #ddd;
-      border-radius: 8px;
+      padding: 10px;
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
       flex: 1;
       overflow-y: auto;
     }
+
     .podium {
       text-align: center;
-      background: #444;
-      color: white;
-      padding: 3px;
-      border-radius: 6px;
-      font-weight: bold;
-      margin-bottom: 4px;
-      letter-spacing: 4px;
-      font-size: clamp(11px, 1.4vh, 15px);
+      background: linear-gradient(135deg, #334155, #1e293b);
+      color: #f8fafc;
+      padding: 6px;
+      border-radius: 8px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      letter-spacing: 6px;
+      font-size: clamp(12px, 1.5vh, 16px);
       flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
     }
+
     .seating-wrapper {
       display: flex;
       flex-direction: column;
@@ -128,8 +183,8 @@
     .extra-front-seats {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 4px;
-      margin-bottom: 2px;
+      gap: 6px;
+      margin-bottom: 4px;
       flex-shrink: 0;
     }
     .extra-front-seats .extra-slot {
@@ -142,73 +197,80 @@
     .seat.extra-seat {
       aspect-ratio: auto;
       height: 100%;
-      min-height: 26px;
-      background-color: #fff9e6;
-      border: 2px dashed #ffc107;
+      min-height: 30px;
+      background-color: #fefce8;
+      border: 2px dashed #f59e0b;
     }
     .seating-grid {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       grid-template-rows: repeat(5, 1fr);
-      gap: 4px;
+      gap: 6px;
       flex: 1;
       min-height: 0;
     }
     .seat[data-col="2"],
     .seat[data-col="3"] {
-      transform: translateY(12px);
+      transform: translateY(14px);
     }
     
+    /* 學生名牌本體：預設改為透明玻璃感 */
     .student-badge {
-      width: 92%;
-      height: 92%;
-      background-color: #007bff;
-      color: white;
-      font-weight: bold;
+      width: 94%;
+      height: 94%;
+      background: rgba(255, 255, 255, 0.75) !important;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      color: #1e293b !important;
+      border: 2px solid rgba(148, 163, 184, 0.6);
+      font-weight: 700;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: grab;
       user-select: none;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      transition: transform 0.1s ease, background-color 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s, background-color 0.2s;
       position: relative;
     }
     .student-badge:active {
       cursor: grabbing;
     }
     .student-badge:hover {
-      background-color: #0056b3;
+      filter: brightness(1.04);
+      transform: scale(1.02);
+      border-color: var(--primary-color);
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.15), inset 0 1px 3px rgba(255, 255, 255, 0.9);
     }
     #pool .student-badge {
-      width: 58px;
-      height: 58px;
-      font-size: 13px;
-      border-radius: 6px;
+      width: 62px;
+      height: 62px;
+      font-size: 14px;
+      border-radius: 10px;
     }
     
     .student-badge.locked {
-      background: linear-gradient(135deg, #495057, #343a40) !important;
-      color: #ffc107 !important;
-      border: 2px solid #ffc107;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4), 0 2px 6px rgba(255, 193, 7, 0.4);
+      background: linear-gradient(135deg, #334155, #1e293b) !important;
+      color: #ffb703 !important;
+      border: 2px solid #ffb703;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.4), 0 3px 8px rgba(255, 183, 3, 0.3);
       cursor: not-allowed;
     }
     .seat.locked-seat {
-      background-color: #e9ecef !important;
-      border: 2px solid #6c757d !important;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+      background-color: #f1f5f9 !important;
+      border: 2px solid #94a3b8 !important;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
 
     .lock-btn {
       position: absolute;
-      top: -3px;
-      right: -3px;
-      width: 18px;
-      height: 18px;
-      background: #333;
+      top: -4px;
+      right: -4px;
+      width: 20px;
+      height: 20px;
+      background: #1e293b;
       color: #fff;
       font-size: 10px;
       border-radius: 50%;
@@ -216,8 +278,9 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      border: 1px solid #fff;
+      border: 1.5px solid #fff;
       z-index: 10;
+      box-shadow: var(--shadow-sm);
     }
     .seat:hover .lock-btn,
     .seat .student-badge:hover .lock-btn {
@@ -226,66 +289,75 @@
     .locked-seat .lock-btn,
     .student-badge.locked .lock-btn {
       display: flex;
-      background: #495057;
-      color: #ffc107;
-      border: 1px solid #ffc107;
+      background: #334155;
+      color: #ffb703;
+      border: 1.5px solid #ffb703;
     }
     .seat {
-      background-color: #fff;
-      border: 2px dashed #bbb;
-      border-radius: 8px;
+      background-color: #ffffff;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      transition: background-color 0.2s, transform 0.2s;
+      transition: all 0.2s ease;
       aspect-ratio: auto;
       width: 100%;
       height: 100%;
     }
     .seat.disabled {
-      background-color: #e9ecef;
-      border-color: #dee2e6;
+      background-color: #f8fafc;
+      border-color: #e2e8f0;
       border-style: solid;
-      opacity: 0.4;
+      opacity: 0.35;
       pointer-events: none;
     }
     .seat.drag-over {
-      background-color: #e2f0d9;
-      border-color: #28a745;
+      background-color: #f0fdf4 !important;
+      border-color: #22c55e !important;
+      border-style: solid;
+      transform: scale(1.02);
     }
     .seat-index {
       position: absolute;
-      top: 1px;
-      left: 3px;
-      font-size: clamp(8px, 1vh, 12px);
-      color: #888;
-      font-weight: bold;
+      top: 3px;
+      left: 5px;
+      font-size: clamp(9px, 1.1vh, 13px);
+      color: var(--text-muted);
+      font-weight: 700;
       pointer-events: none;
     }
     .actions {
       text-align: center;
-      margin-top: 2px;
+      margin-top: 6px;
       flex-shrink: 0;
     }
     button {
-      padding: 3px 10px;
+      padding: 6px 14px;
       margin: 0 4px;
       border: none;
-      border-radius: 6px;
-      background-color: #444;
+      border-radius: 8px;
+      background-color: #334155;
       color: white;
       cursor: pointer;
-      font-size: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background-color 0.2s, transform 0.1s;
+      box-shadow: var(--shadow-sm);
     }
     button:hover {
-      background-color: #222;
+      background-color: #1e293b;
+      transform: translateY(-1px);
+    }
+    button:active {
+      transform: translateY(0);
     }
     .timestamp-global {
       text-align: center;
-      font-size: 10px;
-      color: #666;
-      margin-top: 1px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
       flex-shrink: 0;
     }
 
@@ -293,7 +365,7 @@
     #present-tab .present-layout {
       display: grid;
       grid-template-columns: 2.1fr 0.9fr;
-      gap: 10px;
+      gap: 12px;
       flex: 1;
       min-height: 0;
       width: 100%;
@@ -305,12 +377,11 @@
     }
 
     #present-tab .panel {
-      padding: 6px 10px;
+      padding: 8px 12px;
       flex: 1;
       min-height: 0;
     }
 
-    /* 學生檢視分頁的名牌配置：高度最大化、編號與點數顯著放大 */
     #present-tab .student-badge {
       width: 95% !important;
       height: 94% !important;
@@ -318,32 +389,34 @@
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
-      justify-content: space-evenly !important; /* 均勻分配空間讓內部文字撐大 */
+      justify-content: space-evenly !important;
       padding: 2px 0;
     }
 
-    /* 座位內的號碼放大 */
     #present-tab .student-badge .status-mark {
       font-size: clamp(24px, 4.2vh, 48px) !important;
       line-height: 1;
       font-weight: 900;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
 
-    /* 座位內的點數放大 */
     #present-tab .student-badge .badge-points {
-      font-size: clamp(14px, 2.4vh, 26px) !important;
-      padding: 1px 8px;
-      border-radius: 6px;
+      font-size: clamp(13px, 2.2vh, 24px) !important;
+      padding: 2px 10px;
+      border-radius: 8px;
       line-height: 1.1;
-      font-weight: bold;
+      font-weight: 800;
+      background: rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(4px);
+      color: #1e293b;
     }
 
-    /* ================= 頭銜與酷炫外框樣式庫 (同步大幅放大) ================= */
+    /* ================= 頭銜與酷炫外框樣式庫 ================= */
     .badge-title {
-      font-size: clamp(17px, 3vh, 32px) !important; /* 頭銜同步明顯放大 */
-      padding: 1px 10px;
-      font-weight: bold;
-      line-height: 1.1;
+      font-size: clamp(16px, 2.8vh, 30px) !important;
+      padding: 2px 12px;
+      font-weight: 800;
+      line-height: 1.2;
       white-space: nowrap;
       max-width: 98%;
       overflow: hidden;
@@ -352,76 +425,70 @@
       letter-spacing: 0.5px;
     }
 
-    /* 樣式 1：尊爵紅金 */
     .badge-style-gold {
       background: linear-gradient(135deg, #ff416c, #ff4b2b);
       color: #ffffff;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 2px solid #ffe600;
-      box-shadow: 0 0 5px rgba(255, 230, 0, 0.8), inset 0 1px 2px rgba(255,255,255,0.4);
+      box-shadow: 0 0 10px rgba(255, 230, 0, 0.7), inset 0 1px 3px rgba(255,255,255,0.4);
     }
 
-    /* 樣式 2：酷炫方形黃框 (電競風) */
     .badge-style-cyber {
       background: #1e1e1e;
       color: #ffe600;
-      border-radius: 3px;
+      border-radius: 6px;
       border: 2px solid #ffe600;
-      box-shadow: 0 0 6px rgba(255, 230, 0, 0.7), inset 0 0 3px rgba(255, 230, 0, 0.5);
+      box-shadow: 0 0 10px rgba(255, 230, 0, 0.6), inset 0 0 5px rgba(255, 230, 0, 0.4);
     }
 
-    /* 樣式 3：科技霓虹藍方框 */
     .badge-style-neon {
       background: #001f3f;
       color: #00f0ff;
-      border-radius: 3px;
+      border-radius: 6px;
       border: 2px solid #00f0ff;
-      box-shadow: 0 0 6px rgba(0, 240, 255, 0.8);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
     }
 
-    /* 樣式 4：✨ 傳說黑金質感（附帶白色星光點綴） */
     .badge-style-legend {
       background: #111111;
       color: #ffd700;
-      border-radius: 5px;
+      border-radius: 8px;
       border: 2px solid #ffd700;
-      box-shadow: 0 0 8px rgba(255, 215, 0, 0.9), inset 0 0 5px rgba(255, 215, 0, 0.4);
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.8), inset 0 0 6px rgba(255, 215, 0, 0.4);
       position: relative;
       overflow: visible !important;
     }
     .badge-style-legend::before {
       content: "✨";
       position: absolute;
-      top: -8px;
-      left: -5px;
-      font-size: 11px;
-      filter: drop-shadow(0 0 2px #ffffff);
+      top: -10px;
+      left: -6px;
+      font-size: 12px;
+      filter: drop-shadow(0 0 3px #ffffff);
     }
     .badge-style-legend::after {
       content: "⭐";
       position: absolute;
-      bottom: -7px;
-      right: -5px;
-      font-size: 10px;
-      filter: drop-shadow(0 0 2px #ffffff);
+      bottom: -9px;
+      right: -6px;
+      font-size: 11px;
+      filter: drop-shadow(0 0 3px #ffffff);
     }
 
-    /* 樣式 5：清新森林綠 */
     .badge-style-forest {
       background: #1e4620;
       color: #76ff03;
-      border-radius: 5px;
+      border-radius: 8px;
       border: 2px solid #76ff03;
-      box-shadow: 0 0 6px rgba(118, 255, 3, 0.6);
+      box-shadow: 0 0 10px rgba(118, 255, 3, 0.5);
     }
 
-    /* 樣式 6：🌟 真實羽翼天使風 (使用精緻 SVG 向量翅膀) */
     .badge-style-angel {
       background: linear-gradient(135deg, #2b5876, #4e4376);
       color: #ffffff;
-      border-radius: 10px;
+      border-radius: 12px;
       border: 2px solid #ffffff;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.7), inset 0 0 8px rgba(255, 255, 255, 0.4);
       position: relative;
       overflow: visible !important;
     }
@@ -448,51 +515,46 @@
       filter: drop-shadow(0 0 4px rgba(255,255,255,0.9));
     }
 
-    /* 樣式 7：🌿 翡翠精靈藤蔓風 (左右兩邊有葉子圖案) */
     .badge-style-vines {
       background: linear-gradient(135deg, #134e5e, #71b280);
       color: #fceabb;
-      border-radius: 8px;
+      border-radius: 10px;
       border: 2px solid #a8ff78;
-      box-shadow: 0 0 8px rgba(168, 255, 120, 0.6);
+      box-shadow: 0 0 10px rgba(168, 255, 120, 0.5);
       position: relative;
       overflow: visible !important;
     }
     .badge-style-vines::before {
       content: "🌱";
       position: absolute;
-      left: -12px;
+      left: -14px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 12px;
-      filter: drop-shadow(0 0 2px rgba(168, 255, 120, 0.8));
+      font-size: 13px;
     }
     .badge-style-vines::after {
       content: "🌿";
       position: absolute;
-      right: -12px;
+      right: -14px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 12px;
-      filter: drop-shadow(0 0 2px rgba(168, 255, 120, 0.8));
+      font-size: 13px;
     }
 
-    /* 樣式 8：🔥 熔岩霸主風 (熱血風) */
     .badge-style-lava {
       background: linear-gradient(135deg, #cb2d3e, #ef473a);
       color: #fff;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 2px solid #ffeb3b;
-      box-shadow: 0 0 8px rgba(255, 87, 34, 0.9), inset 0 0 5px rgba(255, 235, 59, 0.6);
+      box-shadow: 0 0 10px rgba(255, 87, 34, 0.8), inset 0 0 6px rgba(255, 235, 59, 0.5);
     }
 
-    /* 樣式 9：💎 璀璨鑽石框（周圍帶有閃耀寶石裝飾） */
     .badge-style-diamond {
       background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
       color: #ffffff;
-      border-radius: 10px;
-      border: 3px solid #00ffff;
-      box-shadow: 0 0 14px rgba(0, 255, 255, 0.9), inset 0 0 8px rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+      border: 2.5px solid #00ffff;
+      box-shadow: 0 0 14px rgba(0, 255, 255, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.6);
       position: relative;
       overflow: visible !important;
     }
@@ -502,8 +564,8 @@
       left: -16px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 18px;
-      filter: drop-shadow(0 0 5px #00ffff);
+      font-size: 16px;
+      filter: drop-shadow(0 0 4px #00ffff);
     }
     .badge-style-diamond::after {
       content: "💎";
@@ -511,14 +573,20 @@
       right: -16px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 18px;
-      filter: drop-shadow(0 0 5px #00ffff);
+      font-size: 16px;
+      filter: drop-shadow(0 0 4px #00ffff);
     }
     /* ========================================================= */
 
     #present-tab .student-badge.status-submitted {
-      background-color: #28a745 !important;
-      box-shadow: 0 0 12px rgba(40, 167, 69, 0.7);
+      background: linear-gradient(135deg, #10b981, #059669) !important;
+      color: #ffffff !important;
+      border-color: #34d399 !important;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.55);
+    }
+    #present-tab .student-badge.status-submitted .badge-points {
+      background: rgba(0,0,0,0.15);
+      color: #ffffff;
     }
     #present-tab .student-badge.status-submitted .status-mark::after {
       content: " ✓";
@@ -526,9 +594,14 @@
     }
 
     #present-tab .student-badge.status-incomplete {
-      background-color: #fff3cd !important;
-      color: #856404 !important;
-      box-shadow: 0 0 12px rgba(255, 235, 150, 0.7);
+      background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+      color: #78350f !important;
+      border-color: #fde047 !important;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.55);
+    }
+    #present-tab .student-badge.status-incomplete .badge-points {
+      background: rgba(0,0,0,0.15);
+      color: #78350f;
     }
     #present-tab .student-badge.status-incomplete .status-mark::after {
       content: " ✏️";
@@ -536,9 +609,14 @@
     }
 
     #present-tab .student-badge.status-leave {
-      background-color: #6c757d !important;
+      background: linear-gradient(135deg, #64748b, #475569) !important;
       color: #ffffff !important;
-      box-shadow: 0 0 12px rgba(108, 117, 125, 0.7);
+      border-color: #94a3b8 !important;
+      box-shadow: 0 0 14px rgba(100, 116, 139, 0.55);
+    }
+    #present-tab .student-badge.status-leave .badge-points {
+      background: rgba(0,0,0,0.15);
+      color: #ffffff;
     }
     #present-tab .student-badge.status-leave .status-mark::after {
       content: " 假";
@@ -549,34 +627,35 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2px;
+      margin-bottom: 6px;
       width: 100%;
       flex-shrink: 0;
     }
     .present-tip {
       font-size: clamp(11px, 1.3vh, 14px);
-      color: #555;
-      background: #e2f0d9;
-      padding: 2px 8px;
-      border-radius: 6px;
-      border: 1px solid #28a745;
+      color: #166534;
+      background: #f0fdf4;
+      padding: 4px 12px;
+      border-radius: 8px;
+      border: 1px solid #bbf7d0;
+      font-weight: 500;
     }
 
     .memo-panel {
       display: flex;
       flex-direction: column;
-      background: #fffdf5;
-      border: 2px solid #ffeeba;
+      background: #fffbeb;
+      border: 2px solid #fef3c7;
       min-height: 0;
     }
     .memo-header {
-      font-size: clamp(12px, 1.5vh, 15px);
-      font-weight: bold;
-      color: #856404;
+      font-size: clamp(13px, 1.6vh, 16px);
+      font-weight: 700;
+      color: #92400e;
       text-align: center;
-      padding-bottom: 2px;
-      border-bottom: 2px dashed #ffeeba;
-      margin-bottom: 4px;
+      padding-bottom: 4px;
+      border-bottom: 2px dashed #fde68a;
+      margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -585,55 +664,60 @@
     .memo-header-right {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
     .memo-date-badge {
-      font-size: clamp(10px, 1.3vh, 13px);
-      background-color: #fff3cd;
-      color: #856404;
-      padding: 1px 5px;
-      border-radius: 4px;
-      border: 1px solid #ffeeba;
-      font-weight: bold;
+      font-size: clamp(11px, 1.3vh, 13px);
+      background-color: #fef3c7;
+      color: #92400e;
+      padding: 2px 8px;
+      border-radius: 6px;
+      border: 1px solid #fde68a;
+      font-weight: 700;
     }
     .memo-lock-btn {
-      background: #fff3cd;
-      border: 1px solid #ffeeba;
-      color: #856404;
-      padding: 1px 5px;
-      border-radius: 4px;
-      font-size: clamp(10px, 1.2vh, 12px);
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: clamp(11px, 1.3vh, 13px);
       cursor: pointer;
-      font-weight: bold;
+      font-weight: 700;
+      transition: background-color 0.2s;
+    }
+    .memo-lock-btn:hover {
+      background: #fde68a;
     }
     
     .memo-editor {
       flex: 1;
       width: 100%;
-      border: 1px solid #ced4da;
-      border-radius: 6px;
-      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px;
       font-family: inherit;
-      font-size: clamp(32px, 5.8vh, 64px);
-      line-height: 2.3;
+      font-size: clamp(28px, 5.2vh, 58px);
+      line-height: 2.2;
       box-sizing: border-box;
       background-color: #ffffff;
-      color: #333;
+      color: #1e293b;
       writing-mode: vertical-rl;
       text-orientation: mixed;
       overflow-x: auto;
       overflow-y: hidden;
       outline: none;
       white-space: pre-wrap;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
     }
     .memo-editor:focus {
-      border-color: #ffc107;
-      box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+      border-color: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
     }
     .memo-editor.locked-memo {
-      background-color: #f8f9fa;
-      color: #6c757d;
-      border-color: #dee2e6;
+      background-color: #f8fafc;
+      color: #94a3b8;
+      border-color: #e2e8f0;
       cursor: not-allowed;
     }
 
@@ -642,44 +726,53 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 10px;
     }
     .titles-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
       overflow-y: auto;
-      padding: 8px;
+      padding: 10px;
       flex: 1;
-      background: #fafafa;
-      border: 2px dashed #ddd;
-      border-radius: 8px;
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
     }
     .title-card {
       background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      gap: 6px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s;
+    }
+    .title-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
     .title-card-header {
-      font-weight: bold;
-      font-size: 13px;
-      color: #007bff;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--primary-color);
     }
     .title-input, .title-select {
-      padding: 3px 6px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
       font-family: inherit;
-      font-size: 12px;
+      font-size: 13px;
+      background: #f8fafc;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     .title-input:focus, .title-select:focus {
-      border-color: #007bff;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
       outline: none;
+      background: #fff;
     }
   </style>
 </head>
@@ -696,8 +789,8 @@
   <!-- 學生檢視分頁 -->
   <div id="present-tab" class="tab-content active">
     <div class="present-toolbar">
-      <div class="present-tip">💡 點擊座號切換狀態：<span style="color:#28a745; font-weight:bold;">綠色(已完成 ✓)</span> ➔ <span style="color:#b58500; font-weight:bold;">淡黃色(加油中 ✏️)</span> ➔ <span style="color:#6c757d; font-weight:bold;">灰色(請假 假)</span> ➔ 正常</div>
-      <button onclick="resetSubmissionsWithPassword()" style="background-color: #dc3545; font-size: 12px; padding: 3px 8px;">清除所有回報狀態</button>
+      <div class="present-tip">💡 點擊座號切換狀態：透明玻璃(未完成) ➔ <span style="color:#059669; font-weight:700;">綠色(已完成 ✓)</span> ➔ <span style="color:#d97706; font-weight:700;">淡黃色(加油中 ✏️)</span> ➔ <span style="color:#475569; font-weight:700;">灰色(請假 假)</span></div>
+      <button onclick="resetSubmissionsWithPassword()" style="background-color: #ef4444; font-size: 12px; padding: 6px 12px;">清除所有回報狀態</button>
     </div>
 
     <div class="present-layout">
@@ -736,10 +829,10 @@
     <div class="panel" style="flex: 1; display: flex; flex-direction: column;">
       <h2>👑 全班學生頭銜與外框樣式設定</h2>
       <div class="titles-top-bar">
-        <div style="font-size: 12px; color: #666;">
+        <div style="font-size: 13px; color: var(--text-muted);">
           輸入每個座號的專屬頭銜，並可自由挑選包含全新「鑽石框」在內的酷炫外框風格！
         </div>
-        <button onclick="saveTitlesData()" style="background-color: #28a745; font-size: 13px; padding: 5px 14px; font-weight: bold;">💾 儲存所有頭銜設定</button>
+        <button onclick="saveTitlesData()" style="background-color: #10b981; font-size: 13px; padding: 8px 16px; font-weight: 700;">💾 儲存所有頭銜設定</button>
       </div>
       <div class="titles-grid" id="titlesGridContainer"></div>
     </div>
@@ -1362,7 +1455,7 @@
           if (titleObj && titleObj.text) {
             htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-diamond'}" title="${titleObj.text}">${titleObj.text}</div>`;
           }
-          htmlContent += `<span class="status-mark">${sNum}</span><span class="badge-points">⭐${pts}</span>`;
+          htmlContent += `<div style="display: flex; align-items: center; justify-content: center; gap: 8px;"><span class="status-mark">${sNum}</span><span class="badge-points">⭐${pts}</span></div>`;
           badge.innerHTML = htmlContent;
 
           const currentStatus = state.submissions[sNum] || 0;
@@ -1428,7 +1521,7 @@
             if (titleObj && titleObj.text) {
               htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-diamond'}" title="${titleObj.text}">${titleObj.text}</div>`;
             }
-            htmlContent += `<span class="status-mark">${sNum}</span><span class="badge-points">⭐${pts}</span>`;
+            htmlContent += `<div style="display: flex; align-items: center; justify-content: center; gap: 8px;"><span class="status-mark">${sNum}</span><span class="badge-points">⭐${pts}</span></div>`;
             badge.innerHTML = htmlContent;
 
             const currentStatus = state.submissions[sNum] || 0;
@@ -1487,12 +1580,12 @@
     function removeDropStyle(e) {
       const seat = e.currentTarget.closest(".seat") || e.currentTarget;
       if (seat.classList && seat.classList.contains("seat")) seat.classList.remove("drag-over");
-      if (e.target.id === "pool") e.target.style.backgroundColor = "#fafafa";
+      if (e.target.id === "pool") e.target.style.backgroundColor = "#f8fafc";
     }
 
     function dropToPool(e) {
       e.preventDefault();
-      document.getElementById("pool").style.backgroundColor = "#fafafa";
+      document.getElementById("pool").style.backgroundColor = "#f8fafc";
       try {
         const data = JSON.parse(e.dataTransfer.getData("text/plain"));
         if (data.sourceType === "seat") {
