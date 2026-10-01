@@ -426,6 +426,100 @@
       text-align: center;
     }
 
+    /* 1. 數學風格：📐 數學邏輯風 */
+    .badge-style-math {
+      background: linear-gradient(135deg, #090d16, #1e1b4b) !important;
+      color: #38bdf8 !important;
+      border-radius: 10px;
+      border: 2.5px solid #00f0ff;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.75), inset 0 0 8px rgba(56, 189, 248, 0.4);
+      position: relative;
+      overflow: visible !important;
+    }
+    .badge-style-math::before {
+      content: "➗";
+      position: absolute;
+      left: -20px;
+      top: 100%;
+      transform: translateY(-50%);
+      width: 28px;
+      height: 28px;
+      filter: drop-shadow(0 0 6px #00f0ff);
+      z-index: 5;
+    }
+    .badge-style-math::after {
+      content: "📐";
+      position: absolute;
+      right: -18px;
+      top: 0%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      filter: drop-shadow(0 0 6px #38bdf8);
+      z-index: 5;
+    }
+
+    /* 2. 語文風格：✒️ 書香語文風 */
+    .badge-style-language {
+      background: linear-gradient(135deg, #062316, #113622) !important;
+      color: #fef08a !important;
+      border-radius: 10px;
+      border: 2.5px solid #d4af37;
+      box-shadow: 0 0 16px rgba(212, 175, 55, 0.7), inset 0 0 8px rgba(254, 240, 138, 0.4);
+      position: relative;
+      overflow: visible !important;
+    }
+    .badge-style-language::before {
+      content: "🖋️";
+      position: absolute;
+      left: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      filter: drop-shadow(0 0 6px #d4af37);
+      z-index: 5;
+    }
+    .badge-style-language::after {
+      content: "📖";
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      filter: drop-shadow(0 0 6px #d4af37);
+      z-index: 5;
+    }
+
+    /* 3. 社會人文風格：🌍 社會人文風 */
+    .badge-style-social {
+      background: linear-gradient(135deg, #451a03, #7c2d12) !important;
+      color: #ffedd5 !important;
+      border-radius: 10px;
+      border: 2.5px solid #d97706;
+      box-shadow: 0 0 16px rgba(217, 119, 6, 0.75), inset 0 0 8px rgba(255, 237, 213, 0.4);
+      position: relative;
+      overflow: visible !important;
+    }
+    .badge-style-social::before {
+      content: "🌐";
+      position: absolute;
+      left: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      filter: drop-shadow(0 0 6px #d97706);
+      z-index: 5;
+    }
+    .badge-style-social::after {
+      content: "🧭";
+      position: absolute;
+      right: -18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      filter: drop-shadow(0 0 6px #d97706);
+      z-index: 5;
+    }
+
     .badge-style-gold {
       background: linear-gradient(135deg, #ff416c, #ff4b2b);
       color: #ffffff;
@@ -552,29 +646,30 @@
 
     .badge-style-diamond {
       background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-      color: #ffffff;
+      color: #ffd700;
+filter: drop-shadow(0 1px 2px rgba(139, 69, 19, 0.6));
       border-radius: 12px;
-      border: 2.5px solid #00ffff;
-      box-shadow: 0 0 14px rgba(0, 255, 255, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.6);
+      border: 2.5px solid #ffea75;
+      box-shadow: 0 0 14px rgba(255, 215, 0, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.6);
       position: relative;
       overflow: visible !important;
     }
     .badge-style-diamond::before {
-      content: "💎";
+      content: "💎💎💎💎";
       position: absolute;
-      left: -16px;
-      top: 50%;
+      left: 0px;
+      top: 110%;
       transform: translateY(-50%);
-      font-size: 16px;
+      font-size: 15px;
       filter: drop-shadow(0 0 4px #00ffff);
     }
     .badge-style-diamond::after {
-      content: "💎";
+      content: "💫";
       position: absolute;
-      right: -16px;
-      top: 50%;
+      right: -20px;
+      top: 5%;
       transform: translateY(-50%);
-      font-size: 16px;
+      font-size: 32px;
       filter: drop-shadow(0 0 4px #00ffff);
     }
 
@@ -605,7 +700,7 @@
       filter: drop-shadow(0 0 5px #fde047);
     }
 
-    /* 冠軍獎盃風造型（左右金獎盃、白底金框、絕不擋字） */
+    /* 冠軍獎盃風造型 */
     .badge-style-trophy {
       background: linear-gradient(135deg, #451a03, #78350f, #92400e);
       color: #fef3c7;
@@ -652,7 +747,7 @@
       z-index: 5;
     }
 
-    /* 棒球造型（不透明深藍漸層背景、左上角棒球、右下角球棒、四周額外加上星星與獎座裝飾） */
+    /* 棒球造型 */
     .badge-style-baseball {
       background: linear-gradient(135deg, #0f172a, #1e3a8a) !important;
       color: #f8fafc !important;
@@ -662,7 +757,6 @@
       position: relative;
       overflow: visible !important;
     }
-    /* 左上角：帶紅色縫線的精緻棒球（SVG圖示，懸掛於名牌左上方外緣） */
     .badge-style-baseball::before {
       content: "";
       position: absolute;
@@ -675,9 +769,8 @@
       filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
       z-index: 5;
     }
-    /* 右下角：獨立球棒裝飾物，懸掛於名牌右下方外緣 */
     .badge-style-baseball::after {
-      content: "🏏";
+      content: "🏆";
       position: absolute;
       right: -20px;
       bottom: -12px;
@@ -685,8 +778,6 @@
       filter: drop-shadow(0 0 8px #f43f5e);
       z-index: 5;
     }
-    
-    /* 額外加上星星與獎座在邊框四周做裝飾 */
     .badge-style-baseball .badge-title {
       position: relative;
     }
@@ -962,7 +1053,7 @@
       <h2>👑 全班學生頭銜與外框樣式設定</h2>
       <div class="titles-top-bar">
         <div style="font-size: 13px; color: var(--text-muted);">
-          輸入每個座號的專屬頭銜，並可自由挑選「棒球英豪」、「冠軍獎盃」或其他精美外框！
+          輸入每個座號的專屬頭銜，並可自由挑選數學、語文、社會人文或各類精美外框！
         </div>
         <button onclick="saveTitlesData()" style="background-color: #10b981; font-size: 13px; padding: 8px 16px; font-weight: 700;">💾 儲存所有頭銜設定</button>
       </div>
@@ -1340,6 +1431,9 @@
       container.innerHTML = "";
 
       const styleOptions = [
+        { val: "badge-style-math", name: "📐 數學邏輯風（幾何漸層、青色座標與圓規幾何）" },
+        { val: "badge-style-language", name: "✒️ 書香語文風（墨綠古卷、羽毛筆與經典書本）" },
+        { val: "badge-style-social", name: "🌍 社會人文風（大地暖棕、地球儀與古地圖指南針）" },
         { val: "badge-style-baseball", name: "⚾ 棒球英豪（深藍漸層、左上棒球右下球棒與星星獎座裝飾）" },
         { val: "badge-style-trophy", name: "🏆 冠軍獎盃（左右金獎盃與白底外框）" },
         { val: "badge-style-midautumn", name: "🌕 中秋限定（金屬立體大月亮）" },
@@ -1370,7 +1464,7 @@
         const input = document.createElement("input");
         input.type = "text";
         input.className = "title-input";
-        input.placeholder = "輸入頭銜（例如：全壘打王）";
+        input.placeholder = "輸入頭銜（例如：數學小達人）";
         input.value = state.titles[sNum].text || "";
 
         input.addEventListener("input", (e) => {
