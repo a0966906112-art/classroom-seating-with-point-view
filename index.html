@@ -214,7 +214,7 @@
       transform: translateY(14px);
     }
     
-    /* 學生名牌本體：預設改為透明玻璃感 */
+    /* 學生名牌本體：預設為透明玻璃感 */
     .student-badge {
       width: 94%;
       height: 94%;
@@ -413,16 +413,17 @@
 
     /* ================= 頭銜與酷炫外框樣式庫 ================= */
     .badge-title {
-      font-size: clamp(16px, 2.8vh, 30px) !important;
-      padding: 2px 12px;
+      font-size: clamp(15px, 2.6vh, 28px) !important;
+      padding: 2px 16px; /* 預留左右空間，絕對不擋到左右裝飾物 */
       font-weight: 800;
       line-height: 1.2;
       white-space: nowrap;
-      max-width: 98%;
+      max-width: 82%; /* 限制文字寬度，留出兩側裝飾安全距離 */
       overflow: hidden;
       text-overflow: ellipsis;
       margin-bottom: 0px;
       letter-spacing: 0.5px;
+      text-align: center;
     }
 
     .badge-style-gold {
@@ -577,7 +578,6 @@
       filter: drop-shadow(0 0 4px #00ffff);
     }
 
-    /* 升級版：豪華金屬感與超大滿月中秋限定造型外框 */
     .badge-style-midautumn {
       background: linear-gradient(135deg, #3b071a, #110d2b);
       color: #fef08a;
@@ -603,6 +603,110 @@
       right: -10px;
       font-size: 17px;
       filter: drop-shadow(0 0 5px #fde047);
+    }
+
+    /* 冠軍獎盃風造型（左右金獎盃、白底金框、絕不擋字） */
+    .badge-style-trophy {
+      background: linear-gradient(135deg, #451a03, #78350f, #92400e);
+      color: #fef3c7;
+      border-radius: 12px;
+      border: 3px solid #fbbf24;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.8), inset 0 0 10px rgba(254, 243, 199, 0.4);
+      position: relative;
+      overflow: visible !important;
+    }
+    .badge-style-trophy::before {
+      content: "🏆";
+      position: absolute;
+      left: -22px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 24px;
+      width: 36px;
+      height: 36px;
+      background: #ffffff;
+      border-radius: 50%;
+      border: 2px solid #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.9);
+      z-index: 5;
+    }
+    .badge-style-trophy::after {
+      content: "🏆";
+      position: absolute;
+      right: -22px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 24px;
+      width: 36px;
+      height: 36px;
+      background: #ffffff;
+      border-radius: 50%;
+      border: 2px solid #fbbf24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.9);
+      z-index: 5;
+    }
+
+    /* 棒球造型（不透明深藍漸層背景、左上角棒球、右下角球棒、四周額外加上星星與獎座裝飾） */
+    .badge-style-baseball {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a) !important;
+      color: #f8fafc !important;
+      border-radius: 12px;
+      border: 3px dashed #38bdf8;
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: visible !important;
+    }
+    /* 左上角：帶紅色縫線的精緻棒球（SVG圖示，懸掛於名牌左上方外緣） */
+    .badge-style-baseball::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: -12px;
+      width: 34px;
+      height: 34px;
+      background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="%23ffffff" stroke="%2338bdf8" stroke-width="5"/><path d="M 28 15 C 42 35 42 65 28 85" fill="none" stroke="%23ef4444" stroke-width="7" stroke-linecap="round"/><path d="M 72 15 C 58 35 58 65 72 85" fill="none" stroke="%23ef4444" stroke-width="7" stroke-linecap="round"/></svg>') no-repeat center / 90% 90%;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
+      z-index: 5;
+    }
+    /* 右下角：獨立球棒裝飾物，懸掛於名牌右下方外緣 */
+    .badge-style-baseball::after {
+      content: "🏏";
+      position: absolute;
+      right: -20px;
+      bottom: -12px;
+      font-size: 26px;
+      filter: drop-shadow(0 0 8px #f43f5e);
+      z-index: 5;
+    }
+    
+    /* 額外加上星星與獎座在邊框四周做裝飾 */
+    .badge-style-baseball .badge-title {
+      position: relative;
+    }
+    .badge-style-baseball .badge-title::before {
+      content: "⭐";
+      position: absolute;
+      top: -14px;
+      right: -10px;
+      font-size: 14px;
+      filter: drop-shadow(0 0 4px #ffeb3b);
+      z-index: 6;
+    }
+    .badge-style-baseball .badge-title::after {
+      content: "🏆";
+      position: absolute;
+      bottom: -16px;
+      left: -10px;
+      font-size: 14px;
+      filter: drop-shadow(0 0 4px #ffb300);
+      z-index: 6;
     }
     /* ========================================================= */
 
@@ -632,7 +736,7 @@
       color: #78350f;
     }
     #present-tab .student-badge.status-incomplete .status-mark::after {
-      content: " ✏️";
+      content: " ✏";
       font-size: 0.75em;
     }
 
@@ -817,7 +921,7 @@
   <!-- 學生檢視分頁 -->
   <div id="present-tab" class="tab-content active">
     <div class="present-toolbar">
-      <div class="present-tip">💡 點擊座號切換狀態：透明玻璃(未完成) ➔ <span style="color:#059669; font-weight:700;">綠色(已完成 ✓)</span> ➔ <span style="color:#d97706; font-weight:700;">淡黃色(加油中 ✏️)</span> ➔ <span style="color:#475569; font-weight:700;">灰色(請假 假)</span></div>
+      <div class="present-tip">💡 點擊座號切換狀態：透明玻璃(未完成) ➔ <span style="color:#059669; font-weight:700;">綠色(已完成 ✓)</span> ➔ <span style="color:#d97706; font-weight:700;">淡黃色(加油中 ✏)</span> ➔ <span style="color:#475569; font-weight:700;">灰色(請假 假)</span></div>
       <button onclick="resetSubmissionsWithPassword()" style="background-color: #ef4444; font-size: 12px; padding: 6px 12px;">清除所有回報狀態</button>
     </div>
 
@@ -858,7 +962,7 @@
       <h2>👑 全班學生頭銜與外框樣式設定</h2>
       <div class="titles-top-bar">
         <div style="font-size: 13px; color: var(--text-muted);">
-          輸入每個座號的專屬頭銜，並可自由挑選升級版「中秋限定（金屬立體大月亮）」外框！
+          輸入每個座號的專屬頭銜，並可自由挑選「棒球英豪」、「冠軍獎盃」或其他精美外框！
         </div>
         <button onclick="saveTitlesData()" style="background-color: #10b981; font-size: 13px; padding: 8px 16px; font-weight: 700;">💾 儲存所有頭銜設定</button>
       </div>
@@ -983,9 +1087,9 @@
               let seatKey = formatSeatNum(k);
               let val = parsed[k];
               if (typeof val === 'string') {
-                state.titles[seatKey] = { text: val, style: 'badge-style-midautumn' };
+                state.titles[seatKey] = { text: val, style: 'badge-style-baseball' };
               } else if (val && typeof val === 'object') {
-                state.titles[seatKey] = { text: val.text || '', style: val.style || 'badge-style-midautumn' };
+                state.titles[seatKey] = { text: val.text || '', style: val.style || 'badge-style-baseball' };
               }
             }
             render();
@@ -1236,6 +1340,8 @@
       container.innerHTML = "";
 
       const styleOptions = [
+        { val: "badge-style-baseball", name: "⚾ 棒球英豪（深藍漸層、左上棒球右下球棒與星星獎座裝飾）" },
+        { val: "badge-style-trophy", name: "🏆 冠軍獎盃（左右金獎盃與白底外框）" },
         { val: "badge-style-midautumn", name: "🌕 中秋限定（金屬立體大月亮）" },
         { val: "badge-style-diamond", name: "💎 璀璨鑽石（周圍寶石裝飾）" },
         { val: "badge-style-gold", name: "🏆 尊爵紅金" },
@@ -1251,7 +1357,7 @@
       for (let i = 1; i <= totalStudents; i++) {
         const sNum = formatSeatNum(i);
         if (!state.titles[sNum]) {
-          state.titles[sNum] = { text: "", style: "badge-style-midautumn" };
+          state.titles[sNum] = { text: "", style: "badge-style-baseball" };
         }
 
         const card = document.createElement("div");
@@ -1264,7 +1370,7 @@
         const input = document.createElement("input");
         input.type = "text";
         input.className = "title-input";
-        input.placeholder = "輸入頭銜（例如：小達人）";
+        input.placeholder = "輸入頭銜（例如：全壘打王）";
         input.value = state.titles[sNum].text || "";
 
         input.addEventListener("input", (e) => {
@@ -1306,7 +1412,7 @@
 
         let htmlContent = "";
         if (titleObj && titleObj.text) {
-          htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-midautumn'}" title="${titleObj.text}">${titleObj.text}</div>`;
+          htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-baseball'}" title="${titleObj.text}">${titleObj.text}</div>`;
         }
         htmlContent += `<span>${formattedNum}</span><span class="badge-points">⭐${pts}</span>`;
         badge.innerHTML = htmlContent;
@@ -1373,7 +1479,7 @@
 
               let htmlContent = "";
               if (titleObj && titleObj.text) {
-                htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-midautumn'}" title="${titleObj.text}">${titleObj.text}</div>`;
+                htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-baseball'}" title="${titleObj.text}">${titleObj.text}</div>`;
               }
               htmlContent += `<span>${sNum}</span><span class="badge-points">⭐${pts}</span>`;
               badge.innerHTML = htmlContent;
@@ -1427,7 +1533,7 @@
 
         let htmlContent = "";
         if (titleObj && titleObj.text) {
-          htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-midautumn'}" title="${titleObj.text}">${titleObj.text}</div>`;
+          htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-baseball'}" title="${titleObj.text}">${titleObj.text}</div>`;
         }
         htmlContent += `<span>${sNum}</span><span class="badge-points">⭐${pts}</span>`;
         badge.innerHTML = htmlContent;
@@ -1482,7 +1588,7 @@
           
           let htmlContent = "";
           if (titleObj && titleObj.text) {
-            htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-midautumn'}" title="${titleObj.text}">${titleObj.text}</div>`;
+            htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-baseball'}" title="${titleObj.text}">${titleObj.text}</div>`;
           }
           htmlContent += `<div style="display: flex; align-items: center; justify-content: center; gap: 8px;"><span class="status-mark">${sNum}</span><span class="badge-points">⭐${pts}</span></div>`;
           badge.innerHTML = htmlContent;
@@ -1548,7 +1654,7 @@
             
             let htmlContent = "";
             if (titleObj && titleObj.text) {
-              htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-midautumn'}" title="${titleObj.text}">${titleObj.text}</div>`;
+              htmlContent += `<div class="badge-title ${titleObj.style || 'badge-style-baseball'}" title="${titleObj.text}">${titleObj.text}</div>`;
             }
             htmlContent += `<div style="display: flex; align-items: center; justify-content: center; gap: 8px;"><span class="status-mark">${sNum}</span><span class="badge-points">⭐${pts}</span></div>`;
             badge.innerHTML = htmlContent;
