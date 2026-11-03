@@ -505,6 +505,61 @@
       border-bottom: 1.5px dashed rgba(6, 182, 212, 0.5);
     }
 
+/* 🔥 新增：極致量子數學（Quantum Math Matrix）華麗藍紫霓虹風格 */
+.badge-style-quantum-math {
+  background: linear-gradient(135deg, #0f172a, #1e1b4b, #2e1065) !important; /* 深藍至暗紫漸層背景 */
+  color: #ffffff !important; /* 主要文字改為純白 */
+  border-radius: 12px;
+  border: 3px solid #ffffff;
+  /* 強化外邊框：多重藍紫霓虹擴散光暈 */
+  box-shadow: 
+    0 0 10px #38bdf8,
+    0 0 25px #a855f7,
+    0 0 45px rgba(168, 85, 247, 0.8),
+    inset 0 0 15px rgba(56, 189, 248, 0.5); 
+  position: relative;
+  overflow: visible !important; /* 確保凸出的裝飾不會被切掉 */
+}
+
+.badge-style-quantum-math::before {
+  content: "꧁∞";
+  position: absolute;
+  left: -40px;
+  top: -15%;
+  transform: translateY(-50%);
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffffff !important; /* 純白圖示主體 */
+  /* 強化三層螢光：亮藍 -> 霓虹紫 -> 深紫擴散 */
+  filter: drop-shadow(0 0 5px #38bdf8) drop-shadow(0 0 12px #c084fc) drop-shadow(0 0 22px #9333ea);
+  z-index: 5;
+}
+
+.badge-style-quantum-math::after {
+  content: "꧂";
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffffff !important; /* 純白圖示主體 */
+  letter-spacing: -1px;
+  /* 強化三層螢光：亮藍 -> 霓虹紫 -> 深紫擴散 */
+  filter: drop-shadow(0 0 5px #38bdf8) drop-shadow(0 0 12px #c084fc) drop-shadow(0 0 22px #9333ea);
+  z-index: 5;
+}
+
+.badge-style-quantum-math .badge-title {
+  color: #ffffff !important; /* 純白標題 */
+  /* 標題文字三層藍紫螢光感 */
+  text-shadow: 
+    0 0 8px #38bdf8,
+    0 0 16px #c084fc,
+    0 0 28px #9333ea;
+  letter-spacing: 1px;
+  border-bottom: 2px solid rgba(192, 132, 252, 0.6);
+}
     .badge-style-dragonboat {
       background: linear-gradient(135deg, #064e3b, #047857, #059669) !important;
       color: #fef08a !important;
@@ -1324,7 +1379,7 @@
       <h2>👑 全班學生頭銜與外框樣式設定</h2>
       <div class="titles-top-bar">
         <div style="font-size: 13px; color: var(--text-muted);">
-          輸入每個座號的專屬頭銜，並可自由挑選「窮光蛋」或各類精美外框！
+          輸入每個座號的專屬頭銜，並可自由挑選「極致量子數學」或各類精美外框！
         </div>
         <button onclick="saveTitlesData()" style="background-color: #10b981; font-size: 13px; padding: 8px 16px; font-weight: 700;">💾 儲存所有頭銜設定</button>
       </div>
@@ -1745,6 +1800,7 @@
       container.innerHTML = "";
 
       const styleOptions = [
+        { val: "badge-style-quantum-math", name: "📐 極致量子數學風（∫、π、∞ 炫彩矩陣發光特效）" },
         { val: "badge-style-broke", name: "💸 窮光蛋造型（吃土泡麵風・破產破邊框）" },
         { val: "badge-style-cybermecha", name: "🚀 賽博龐克光能機甲風（突破性科技 HUD 介面）" },
         { val: "badge-style-topone", name: "👑 全班第一名（王者金冠與榮譽獎盃）" },
@@ -1752,9 +1808,9 @@
         { val: "badge-style-christmas", name: "🎄 聖誕節造型（冬日雪景、聖誕樹與禮物）" },
         { val: "badge-style-cny", name: "🧧 新春造型（喜氣紅包與吉慶迎春）" },
         { val: "badge-style-century", name: "💯 突破百點（第一座百點里程碑、燦金與閃耀勳章）" },
-        { val: "badge-style-math", name: "📐 數學邏輯風（幾何漸層、青色座標與圓規幾何）" },
+        { val: "badge-style-math", name: "📐 標準數學邏輯風（幾何漸層、青色座標與圓規）" },
         { val: "badge-style-language", name: "✒️ 書香語文風（墨綠古卷、羽毛筆與經典書本）" },
-        { val: "badge-style-social", name: "🌍 社會人文風（大地暖棕、地球儀與古地圖指南針）" },
+        { val: "badge-style-social", name: "🌐 社會人文風（大地暖棕、地球儀與古地圖指南針）" },
         { val: "badge-style-baseball", name: "⚾ 棒球英豪（深藍漸層、左上棒球右下球棒與星星獎座裝飾）" },
         { val: "badge-style-trophy", name: "🏆 冠軍獎盃（左右金獎盃）" },
         { val: "badge-style-midautumn", name: "🌕 中秋限定（金屬立體大月亮）" },
@@ -1785,7 +1841,7 @@
         const input = document.createElement("input");
         input.type = "text";
         input.className = "title-input";
-        input.placeholder = "輸入頭銜（例如：窮光蛋）";
+        input.placeholder = "輸入頭銜（例如：數學大師）";
         input.value = state.titles[sNum].text || "";
 
         input.addEventListener("input", (e) => {
