@@ -426,6 +426,221 @@
       text-align: center;
     }
 
+   /* 👑 狀元（第一名・帝王紫金皇冠與閃耀流金動態外框） */
+@keyframes zhuangyuanGlow {
+  0%, 100% {
+    box-shadow: 
+      0 0 15px #f59e0b,
+      0 0 30px rgba(251, 191, 36, 0.9),
+      0 0 45px rgba(245, 158, 11, 0.6),
+      inset 0 0 18px rgba(254, 240, 138, 0.8);
+    border-color: #fef08a;
+  }
+  50% {
+    box-shadow: 
+      0 0 25px #fbbf24,
+      0 0 50px rgba(245, 158, 11, 1),
+      0 0 70px rgba(251, 191, 36, 0.8),
+      inset 0 0 25px rgba(255, 255, 255, 0.9);
+    border-color: #ffffff;
+  }
+}
+
+@keyframes crownCrownFloat {
+  0%, 100% {
+    transform: translateY(-50%) rotate(-15deg) scale(1);
+  }
+  50% {
+    transform: translateY(-60%) rotate(-10deg) scale(1.12);
+  }
+}
+
+.badge-style-zhuangyuan {
+  background: linear-gradient(135deg, #0f051d 0%, #3b0764 40%, #78350f 75%, #b45309 100%) !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  border: 3.5px solid #fef08a;
+  animation: zhuangyuanGlow 2.5s infinite alternate ease-in-out;
+  position: relative;
+  overflow: visible !important;
+}
+
+.badge-style-zhuangyuan::before {
+  content: "🥇";
+  position: absolute;
+  left: -28px;
+  top: -20%;
+  font-size: 30px;
+  animation: crownCrownFloat 3s infinite alternate ease-in-out;
+  filter: drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 12px #fbbf24) drop-shadow(0 0 20px #f59e0b);
+  z-index: 5;
+}
+
+.badge-style-zhuangyuan::after {
+  content: "👑";
+  position: absolute;
+  right: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+  letter-spacing: -2px;
+  filter: drop-shadow(0 0 8px #fbbf24) drop-shadow(0 0 14px #d97706);
+  z-index: 5;
+}
+
+.badge-style-zhuangyuan .badge-title {
+  background: linear-gradient(to bottom, #ffffff 0%, #fef08a 60%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.9), 0 0 20px rgba(217, 119, 6, 0.8);
+  font-weight: 900 !important;
+  letter-spacing: 2px;
+  border-bottom: 2px solid rgba(254, 240, 138, 0.85);
+}
+
+/* 🥈 榜眼（第二名・冷光流銀與星光霓虹動態外框） */
+@keyframes bangyanGlow {
+  0%, 100% {
+    box-shadow: 
+      0 0 15px #38bdf8,
+      0 0 30px rgba(56, 189, 248, 0.8),
+      0 0 45px rgba(255, 255, 255, 0.5),
+      inset 0 0 16px rgba(186, 230, 253, 0.7);
+    border-color: #e0f2fe;
+  }
+  50% {
+    box-shadow: 
+      0 0 25px #ffffff,
+      0 0 50px rgba(56, 189, 248, 1),
+      0 0 70px rgba(125, 211, 252, 0.9),
+      inset 0 0 24px rgba(255, 255, 255, 0.95);
+    border-color: #ffffff;
+  }
+}
+
+@keyframes silverFloat {
+  0%, 100% {
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    transform: translateY(-58%) scale(1.12);
+  }
+}
+
+.badge-style-bangyan {
+  background: linear-gradient(135deg, #020617 0%, #0f172a 45%, #1e3a8a 80%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  border: 3.5px solid #e0f2fe;
+  animation: bangyanGlow 2.5s infinite alternate ease-in-out;
+  position: relative;
+  overflow: visible !important;
+}
+
+.badge-style-bangyan::before {
+  content: "🥈";
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  font-size: 28px;
+  animation: silverFloat 3s infinite alternate ease-in-out;
+  filter: drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 12px #38bdf8) drop-shadow(0 0 20px #0284c7);
+  z-index: 5;
+}
+
+.badge-style-bangyan::after {
+  content: "✨";
+  position: absolute;
+  right: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  letter-spacing: -2px;
+  filter: drop-shadow(0 0 8px #38bdf8) drop-shadow(0 0 15px #ffffff);
+  z-index: 5;
+}
+
+.badge-style-bangyan .badge-title {
+  background: linear-gradient(to bottom, #ffffff 0%, #e0f2fe 60%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.9), 0 0 20px rgba(2, 132, 199, 0.8);
+  font-weight: 900 !important;
+  letter-spacing: 2px;
+  border-bottom: 2px solid rgba(224, 242, 254, 0.85);
+}
+/* 🥉 探花（第三名・華麗赤銅與御耀紫焰動態外框） */
+@keyframes tanhuaGlow {
+  0%, 100% {
+    box-shadow: 
+      0 0 15px #f97316,
+      0 0 30px rgba(249, 115, 22, 0.85),
+      0 0 45px rgba(225, 29, 72, 0.5),
+      inset 0 0 16px rgba(253, 186, 116, 0.7);
+    border-color: #fdba74;
+  }
+  50% {
+    box-shadow: 
+      0 0 25px #ffedd5,
+      0 0 50px rgba(249, 115, 22, 1),
+      0 0 70px rgba(239, 68, 68, 0.9),
+      inset 0 0 24px rgba(255, 255, 255, 0.9);
+    border-color: #ffffff;
+  }
+}
+
+@keyframes bronzeFloat {
+  0%, 100% {
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    transform: translateY(-58%) scale(1.12);
+  }
+}
+
+.badge-style-tanhua {
+  background: linear-gradient(135deg, #1e0538 0%, #4c1d95 45%, #7c2d12 80%, #c2410c 100%) !important;
+  color: #ffffff !important;
+  border-radius: 12px;
+  border: 3.5px solid #fdba74;
+  animation: tanhuaGlow 2.5s infinite alternate ease-in-out;
+  position: relative;
+  overflow: visible !important;
+}
+
+.badge-style-tanhua::before {
+  content: "🥉";
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  font-size: 28px;
+  animation: bronzeFloat 3s infinite alternate ease-in-out;
+  filter: drop-shadow(0 0 6px #ffffff) drop-shadow(0 0 12px #f97316) drop-shadow(0 0 20px #c2410c);
+  z-index: 5;
+}
+
+.badge-style-tanhua::after {
+  content: "🌺";
+  position: absolute;
+  right: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  letter-spacing: -2px;
+  filter: drop-shadow(0 0 8px #fb7185) drop-shadow(0 0 15px #f97316);
+  z-index: 5;
+}
+
+.badge-style-tanhua .badge-title {
+  background: linear-gradient(to bottom, #ffffff 0%, #ffedd5 60%, #fb923c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 10px rgba(249, 115, 22, 0.9), 0 0 20px rgba(194, 65, 12, 0.8);
+  font-weight: 900 !important;
+  letter-spacing: 2px;
+  border-bottom: 2px solid rgba(253, 186, 116, 0.85);
+}
+
     .badge-style-broke {
       background: #f1f5f9 !important;
       color: #64748b !important;
@@ -505,61 +720,54 @@
       border-bottom: 1.5px dashed rgba(6, 182, 212, 0.5);
     }
 
-/* 🔥 新增：極致量子數學（Quantum Math Matrix）華麗藍紫霓虹風格 */
-.badge-style-quantum-math {
-  background: linear-gradient(135deg, #0f172a, #1e1b4b, #2e1065) !important; /* 深藍至暗紫漸層背景 */
-  color: #ffffff !important; /* 主要文字改為純白 */
-  border-radius: 12px;
-  border: 3px solid #ffffff;
-  /* 強化外邊框：多重藍紫霓虹擴散光暈 */
-  box-shadow: 
-    0 0 10px #38bdf8,
-    0 0 25px #a855f7,
-    0 0 45px rgba(168, 85, 247, 0.8),
-    inset 0 0 15px rgba(56, 189, 248, 0.5); 
-  position: relative;
-  overflow: visible !important; /* 確保凸出的裝飾不會被切掉 */
-}
+    .badge-style-quantum-math {
+      background: linear-gradient(135deg, #0f172a, #1e1b4b, #2e1065) !important;
+      color: #ffffff !important;
+      border-radius: 12px;
+      border: 3px solid #ffffff;
+      box-shadow: 
+        0 0 10px #38bdf8,
+        0 0 25px #a855f7,
+        0 0 45px rgba(168, 85, 247, 0.8),
+        inset 0 0 15px rgba(56, 189, 248, 0.5); 
+      position: relative;
+      overflow: visible !important;
+    }
+    .badge-style-quantum-math::before {
+      content: "꧁∞";
+      position: absolute;
+      left: -40px;
+      top: -15%;
+      transform: translateY(-50%);
+      font-size: 28px;
+      font-weight: 900;
+      color: #ffffff !important;
+      filter: drop-shadow(0 0 5px #38bdf8) drop-shadow(0 0 12px #c084fc) drop-shadow(0 0 22px #9333ea);
+      z-index: 5;
+    }
+    .badge-style-quantum-math::after {
+      content: "꧂";
+      position: absolute;
+      right: -40px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 28px;
+      font-weight: 900;
+      color: #ffffff !important;
+      letter-spacing: -1px;
+      filter: drop-shadow(0 0 5px #38bdf8) drop-shadow(0 0 12px #c084fc) drop-shadow(0 0 22px #9333ea);
+      z-index: 5;
+    }
+    .badge-style-quantum-math .badge-title {
+      color: #ffffff !important;
+      text-shadow: 
+        0 0 8px #38bdf8,
+        0 0 16px #c084fc,
+        0 0 28px #9333ea;
+      letter-spacing: 1px;
+      border-bottom: 2px solid rgba(192, 132, 252, 0.6);
+    }
 
-.badge-style-quantum-math::before {
-  content: "꧁∞";
-  position: absolute;
-  left: -40px;
-  top: -15%;
-  transform: translateY(-50%);
-  font-size: 28px;
-  font-weight: 900;
-  color: #ffffff !important; /* 純白圖示主體 */
-  /* 強化三層螢光：亮藍 -> 霓虹紫 -> 深紫擴散 */
-  filter: drop-shadow(0 0 5px #38bdf8) drop-shadow(0 0 12px #c084fc) drop-shadow(0 0 22px #9333ea);
-  z-index: 5;
-}
-
-.badge-style-quantum-math::after {
-  content: "꧂";
-  position: absolute;
-  right: -40px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 28px;
-  font-weight: 900;
-  color: #ffffff !important; /* 純白圖示主體 */
-  letter-spacing: -1px;
-  /* 強化三層螢光：亮藍 -> 霓虹紫 -> 深紫擴散 */
-  filter: drop-shadow(0 0 5px #38bdf8) drop-shadow(0 0 12px #c084fc) drop-shadow(0 0 22px #9333ea);
-  z-index: 5;
-}
-
-.badge-style-quantum-math .badge-title {
-  color: #ffffff !important; /* 純白標題 */
-  /* 標題文字三層藍紫螢光感 */
-  text-shadow: 
-    0 0 8px #38bdf8,
-    0 0 16px #c084fc,
-    0 0 28px #9333ea;
-  letter-spacing: 1px;
-  border-bottom: 2px solid rgba(192, 132, 252, 0.6);
-}
     .badge-style-dragonboat {
       background: linear-gradient(135deg, #064e3b, #047857, #059669) !important;
       color: #fef08a !important;
@@ -1379,7 +1587,7 @@
       <h2>👑 全班學生頭銜與外框樣式設定</h2>
       <div class="titles-top-bar">
         <div style="font-size: 13px; color: var(--text-muted);">
-          輸入每個座號的專屬頭銜，並可自由挑選「極致量子數學」或各類精美外框！
+          輸入每個座號的專屬頭銜，並可自由挑選「狀元、榜眼、探花」或各類精美外框！
         </div>
         <button onclick="saveTitlesData()" style="background-color: #10b981; font-size: 13px; padding: 8px 16px; font-weight: 700;">💾 儲存所有頭銜設定</button>
       </div>
@@ -1420,7 +1628,7 @@
   <div class="timestamp-global" id="lastUpdate">最後更新時間：尚未更新</div>
 
   <script>
-    const ADMIN_PASSWORD = "235711";
+    const ADMIN_PASSWORD = "235711131719";
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzmEtDDzHg9s8ippCkokKRlVrRZ1pNKWS2EdfgExMNmVtZQAPx9fcIB0YUZrP1PCzI-/exec";
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzqAgh-vtmH68CS2SkVC1-xbrACipw61Z4jMPKJHNXlpLRRQGmufk6N67D2oP9TsV9t/exec";
     const TITLES_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzFTG-CCbJjpKKHJWFZxU8Own_pxXQMBaN9fS7x6OgrhDWuWm1LfJ9oU79p_pcR_Hjedw/exec";
@@ -1800,6 +2008,9 @@
       container.innerHTML = "";
 
       const styleOptions = [
+        { val: "badge-style-zhuangyuan", name: "👑 狀元（第一名・皇家金冠與亮金曜石漸層）" },
+        { val: "badge-style-bangyan", name: "🥈 榜眼（第二名・璀璨流銀與極致霓虹光暈）" },
+        { val: "badge-style-tanhua", name: "🥉 探花（第三名・華麗赤銅與繁花流光風）" },
         { val: "badge-style-quantum-math", name: "📐 極致量子數學風（∫、π、∞ 炫彩矩陣發光特效）" },
         { val: "badge-style-broke", name: "💸 窮光蛋造型（吃土泡麵風・破產破邊框）" },
         { val: "badge-style-cybermecha", name: "🚀 賽博龐克光能機甲風（突破性科技 HUD 介面）" },
@@ -1841,7 +2052,7 @@
         const input = document.createElement("input");
         input.type = "text";
         input.className = "title-input";
-        input.placeholder = "輸入頭銜（例如：數學大師）";
+        input.placeholder = "輸入頭銜（例如：狀元）";
         input.value = state.titles[sNum].text || "";
 
         input.addEventListener("input", (e) => {
